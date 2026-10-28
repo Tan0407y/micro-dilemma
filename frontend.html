@@ -1198,7 +1198,9 @@
 
     async function apiRequest(endpoint, options = {}) {
       const controller = new AbortController();
-      const timeoutMs = endpoint === '/dilemmas' || endpoint === '/subscription/upgrade' || endpoint === '/payments/verify' || endpoint.startsWith('/payments/orders/') ? 60000 : 1800;
+      const isAuthRequest = endpoint === '/auth/register' || endpoint === '/auth/login';
+      const isLongRequest = endpoint === '/dilemmas' || endpoint === '/subscription/upgrade' || endpoint === '/payments/verify' || endpoint.startsWith('/payments/orders/');
+      const timeoutMs = isAuthRequest ? 120000 : isLongRequest ? 60000 : 1800;
       const timeout = setTimeout(() => controller.abort(), timeoutMs);
       try {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -1218,6 +1220,11 @@
         return await response.json();
       } catch (err) {
         clearTimeout(timeout);
+        if (controller.signal.aborted || err.name === 'AbortError') {
+          throw new Error(endpoint === '/auth/register'
+            ? 'Signup timed out. Your account may have been created; try logging in before attempting signup again.'
+            : 'The server took too long to respond. Please try again.');
+        }
         throw err;
       }
     }
