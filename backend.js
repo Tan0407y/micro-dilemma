@@ -11,6 +11,10 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const app = express();
+// Render runs web services behind a reverse proxy. Trust the single proxy hop
+// so express-rate-limit keys requests by the visitor IP instead of one shared
+// proxy IP. Avoid `true` here, which would trust arbitrary forwarded headers.
+app.set('trust proxy', 1);
 const port = Number(process.env.PORT || 5000);
 const jwtSecret = process.env.JWT_SECRET;
 if (!jwtSecret || jwtSecret.length < 32) throw new Error('Set JWT_SECRET to at least 32 characters.');
