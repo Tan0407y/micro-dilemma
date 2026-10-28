@@ -1,0 +1,60 @@
+﻿MICRO DILEMMA WEBSITE PROJECT REPORT
+===================================
+
+WEBSITE
+-------
+Local website URL: http://localhost:5000/
+The website is available while the backend server is running on this computer.
+
+ACTUAL SOURCE CODE FILES
+------------------------
+Frontend (actual runnable website page):
+  frontend.html
+  Full path: C:\Users\Admin\Documents\website\frontend.html
+
+Backend (actual runnable API and server):
+  backend.js
+  Full path: C:\Users\Admin\Documents\website\backend.js
+
+NOTEPAD-READABLE CODE COPIES
+----------------------------
+Frontend copy:
+  Frontend_Code_Notepad.txt
+  Full path: C:\Users\Admin\Documents\website\Frontend_Code_Notepad.txt
+
+Backend copy:
+  Backend_Code_Notepad.txt
+  Full path: C:\Users\Admin\Documents\website\Backend_Code_Notepad.txt
+
+The .txt files are copies for viewing or printing in Notepad. The website runs
+frontend.html and backend.js. Changes made to the .txt copies do not change the
+running website.
+
+DATABASE
+--------
+Database file:
+  C:\Users\Admin\Documents\website\data\micro-dilemma.sqlite
+
+The SQLite database stores registered account records and password hashes,
+dilemmas, votes, student verification requests, and payment records. Passwords
+are stored as hashes, not as plain text. Public dilemma feed responses do not
+show the author account details. The owner API key is required for confidential
+owner records.
+
+HOW TO START THE WEBSITE AND BACKEND
+------------------------------------
+Open PowerShell and enter:
+  cd C:\Users\Admin\Documents\website
+  & "C:\Program Files\nodejs\node.exe" backend.js
+
+Keep that PowerShell window open. Then visit http://localhost:5000/ in a browser.
+The frontend uses the backend API at /api automatically.
+
+SUPPORTING CONFIGURATION
+------------------------
+package.json lists the backend dependencies and start commands.
+.env contains private backend settings and secret keys. Do not share or publish it.
+README.txt contains setup and deployment notes.
+
+This is a local development setup. Other people cannot access the local website
+from the internet until it is deployed to a public hosting service.

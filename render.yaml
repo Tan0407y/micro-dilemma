@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: micro-dilemma
+    runtime: node
+    buildCommand: npm install
+    startCommand: node backend.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_FILE
+        value: ./data/micro-dilemma.sqlite
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_API_KEY
+        generateValue: true

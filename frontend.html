@@ -1,0 +1,2430 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Micro Dilemma — Small Choices. Big Opinions.</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Syne"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            bgDark: '#06070a',
+            cardDark: '#0d0f14',
+            cardBorder: '#1a1e29',
+            neonCyan: '#00f2fe',
+            neonPink: '#ff0878',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #06070a;
+      color: #f4f4f5;
+      overflow-x: hidden;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    h1, h2, h3, .font-genz {
+      font-family: 'Syne', sans-serif;
+      letter-spacing: -0.02em;
+    }
+
+    /* Hide scrollbar for horizontal filter pills */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .gradient-text {
+      background: linear-gradient(90deg, #00f2fe 0%, #c084fc 50%, #ff0878 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .gradient-btn {
+      background: linear-gradient(90deg, #00f2fe 0%, #a855f7 50%, #ff0878 100%);
+    }
+
+    .gradient-btn:hover {
+      filter: brightness(1.12);
+      box-shadow: 0 0 28px rgba(168, 85, 247, 0.5);
+    }
+
+    .card-glow {
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(16px);
+      background: rgba(13, 15, 20, 0.78);
+    }
+
+    .option-a-box {
+      background: rgba(13, 19, 26, 0.75);
+      border: 1px solid rgba(0, 242, 254, 0.35);
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .option-a-box:hover {
+      border-color: rgba(0, 242, 254, 0.9);
+      background: rgba(0, 242, 254, 0.08);
+      box-shadow: 0 0 22px rgba(0, 242, 254, 0.18);
+      transform: translateY(-2px);
+    }
+
+    .option-b-box {
+      background: rgba(23, 12, 23, 0.75);
+      border: 1px solid rgba(255, 8, 120, 0.35);
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .option-b-box:hover {
+      border-color: rgba(255, 8, 120, 0.9);
+      background: rgba(255, 8, 120, 0.08);
+      box-shadow: 0 0 22px rgba(255, 8, 120, 0.18);
+      transform: translateY(-2px);
+    }
+
+    /* Simple & tactile click animation for voting options */
+    @keyframes optionPop {
+      0% { transform: scale(1); }
+      40% { transform: scale(0.95); }
+      75% { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
+    .animate-option-click {
+      animation: optionPop 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes barGrow {
+      from { width: 0%; }
+    }
+    .animate-bar {
+      animation: barGrow 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Upward Disappearing Clouds Intro Animation */
+    .cloud-layer {
+      transition: transform 1.25s cubic-bezier(0.22, 1, 0.36, 1), opacity 1.15s ease-out;
+      will-change: transform, opacity;
+    }
+    .clouds-rise-up {
+      transform: translateY(-135%) scale(1.18) !important;
+      opacity: 0 !important;
+    }
+
+    /* Option Hover & Click Shimmer + Ripple */
+    .option-card-interactive {
+      position: relative;
+      overflow: hidden;
+    }
+    .option-card-interactive::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+      transform: skewX(-20deg);
+      transition: left 0.55s ease;
+      pointer-events: none;
+    }
+    .option-card-interactive:hover::after {
+      left: 140%;
+    }
+
+    @keyframes optionSelectPulse {
+      0% { transform: scale(1); }
+      35% { transform: scale(0.94) rotate(-0.6deg); }
+      70% { transform: scale(1.035) rotate(0.4deg); box-shadow: 0 0 38px rgba(0, 242, 254, 0.45); }
+      100% { transform: scale(1); }
+    }
+    .animate-option-select {
+      animation: optionSelectPulse 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    /* Invitation Intro Splash Screen Animations */
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(2deg); }
+    }
+    .animate-float {
+      animation: floatSlow 4s ease-in-out infinite;
+    }
+
+    @keyframes invitePulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(0, 242, 254, 0.4), 0 0 30px rgba(255, 8, 120, 0.3); }
+      50% { box-shadow: 0 0 0 14px rgba(0, 242, 254, 0), 0 0 45px rgba(168, 85, 247, 0.6); }
+    }
+    .invite-btn-glow {
+      animation: invitePulse 2.4s infinite;
+    }
+
+    .intro-exit {
+      opacity: 0;
+      transform: scale(1.06) translateY(-40px);
+      pointer-events: none;
+      transition: all 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-fuchsia-500 selection:text-white relative">
+
+  <!-- DYNAMIC BLURRY SCROLL-SHIFTING AURA BACKGROUND -->
+  <div id="scrollBlurBg" class="fixed inset-0 -z-10 pointer-events-none overflow-hidden transition-colors duration-700">
+    <div id="auraBlob1" class="absolute -top-24 -left-24 w-96 h-96 rounded-full blur-[130px] opacity-35 transition-all duration-700 ease-out" style="background: #00f2fe;"></div>
+    <div id="auraBlob2" class="absolute top-1/3 -right-28 w-[28rem] h-[28rem] rounded-full blur-[140px] opacity-30 transition-all duration-700 ease-out" style="background: #a855f7;"></div>
+    <div id="auraBlob3" class="absolute -bottom-28 left-1/4 w-96 h-96 rounded-full blur-[135px] opacity-30 transition-all duration-700 ease-out" style="background: #ff0878;"></div>
+  </div>
+
+  <!-- INVITATION INTRO SPLASH OVERLAY WITH UPWARD RISING CLOUDS -->
+  <div id="introInvitationOverlay" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#06070a]/90 backdrop-blur-2xl overflow-hidden">
+    
+    <!-- Animated Dreamy Neon Clouds Layer (Rises Upward & Vanishes on Click) -->
+    <div id="introCloudsContainer" class="absolute inset-0 pointer-events-none overflow-hidden z-20">
+      <!-- Cloud Bank 1 (Top-Left Cyan Mist) -->
+      <div class="cloud-layer absolute -top-12 -left-20 w-[34rem] h-72 opacity-80">
+        <svg viewBox="0 0 500 220" class="w-full h-full drop-shadow-[0_15px_35px_rgba(0,242,254,0.25)]">
+          <defs>
+            <linearGradient id="cloudGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#00f2fe" stop-opacity="0.38"/>
+              <stop offset="100%" stop-color="#a855f7" stop-opacity="0.15"/>
+            </linearGradient>
+          </defs>
+          <path fill="url(#cloudGrad1)" d="M75,165 Q30,165 30,125 Q30,90 68,82 Q85,35 140,42 Q185,12 240,40 Q290,22 330,62 Q385,55 410,98 Q455,105 450,145 Q445,175 400,175 Z"/>
+        </svg>
+      </div>
+
+      <!-- Cloud Bank 2 (Center-Right Pink/Violet Dream Cloud) -->
+      <div class="cloud-layer absolute top-1/4 -right-24 w-[38rem] h-80 opacity-80" style="transition-delay: 40ms;">
+        <svg viewBox="0 0 500 220" class="w-full h-full drop-shadow-[0_15px_35px_rgba(255,8,120,0.25)]">
+          <defs>
+            <linearGradient id="cloudGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ff0878" stop-opacity="0.35"/>
+              <stop offset="100%" stop-color="#6366f1" stop-opacity="0.18"/>
+            </linearGradient>
+          </defs>
+          <path fill="url(#cloudGrad2)" d="M65,170 Q20,165 25,120 Q30,85 75,78 Q105,28 165,40 Q220,10 275,45 Q335,30 365,75 Q425,70 440,115 Q470,145 430,172 Z"/>
+        </svg>
+      </div>
+
+      <!-- Cloud Bank 3 (Bottom Full-Width Fluffy Cloud Curtain) -->
+      <div class="cloud-layer absolute -bottom-16 left-0 right-0 w-full h-80 opacity-90" style="transition-delay: 80ms;">
+        <svg viewBox="0 0 800 260" preserveAspectRatio="none" class="w-full h-full drop-shadow-[0_-15px_45px_rgba(168,85,247,0.35)]">
+          <defs>
+            <linearGradient id="cloudGrad3" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#00f2fe" stop-opacity="0.32"/>
+              <stop offset="50%" stop-color="#c084fc" stop-opacity="0.36"/>
+              <stop offset="100%" stop-color="#ff0878" stop-opacity="0.32"/>
+            </linearGradient>
+          </defs>
+          <path fill="url(#cloudGrad3)" d="M0,260 L0,140 Q60,90 130,125 Q200,55 290,105 Q380,40 480,100 Q570,50 660,115 Q740,75 800,130 L800,260 Z"/>
+        </svg>
+      </div>
+    </div>
+
+    <div id="introInviteCard" class="relative z-30 max-w-md w-full bg-[#0d0f14]/90 border border-zinc-800/90 rounded-[2rem] p-7 sm:p-8 text-center space-y-6 shadow-[0_0_70px_rgba(168,85,247,0.28)] overflow-hidden transition-all duration-700">
+      <!-- Decorative Corner Aura -->
+      <div class="absolute -top-16 -left-16 w-40 h-40 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-16 -right-16 w-40 h-40 bg-pink-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- Animated Floating Emblem -->
+      <div class="w-20 h-20 mx-auto animate-float">
+        <svg viewBox="0 0 120 120" class="w-full h-full drop-shadow-[0_0_16px_rgba(168,85,247,0.5)]">
+          <defs>
+            <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#00f2fe"/>
+              <stop offset="50%" stop-color="#a855f7"/>
+              <stop offset="100%" stop-color="#ff0878"/>
+            </linearGradient>
+            <linearGradient id="leftBubbleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#00f2fe"/>
+              <stop offset="100%" stop-color="#3b82f6"/>
+            </linearGradient>
+            <linearGradient id="rightBubbleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ec4899"/>
+              <stop offset="100%" stop-color="#a855f7"/>
+            </linearGradient>
+          </defs>
+          <circle cx="60" cy="60" r="55" fill="#06070a" stroke="url(#ringGrad)" stroke-width="4" />
+          <path d="M 48 28 C 34 28 25 37 25 49 C 25 56 29 62 35 66 L 31 75 L 42 69 C 44 69.5 46 70 48 70 C 62 70 71 61 71 49 C 71 37 62 28 48 28 Z" fill="url(#leftBubbleGrad)" opacity="0.95" />
+          <path d="M 73 32 C 60 32 51 40 51 51 C 51 62 60 70 73 70 C 75 70 77 69.5 79 69 L 89 75 L 86 66 C 91 62 95 57 95 51 C 95 40 86 32 73 32 Z" fill="url(#rightBubbleGrad)" opacity="0.9" />
+          <text x="45" y="57" text-anchor="middle" fill="#ffffff" font-family="Syne, sans-serif" font-weight="900" font-size="25">?</text>
+          <polygon points="70,43 70,59 83,51" fill="#ffffff" stroke="#ffffff" stroke-width="2" stroke-linejoin="round" />
+        </svg>
+      </div>
+
+      <!-- Invitation Badge & Gen Z Copy -->
+      <div class="space-y-2.5">
+        <div class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-purple-950/70 border border-purple-500/40 text-[11px] font-bold tracking-wider uppercase text-purple-300">
+          <span>☁️</span> VIP VIBE PASS UNLOCKED
+        </div>
+        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight font-genz">
+          What's the <span class="gradient-text">Move Today?</span>
+        </h1>
+        <p class="text-xs sm:text-sm text-zinc-300 leading-relaxed">
+          Two unhinged choices. Live % splits. Zero snitching. Part the clouds &amp; see how your campus really thinks.
+        </p>
+      </div>
+
+      <!-- Mini Feature Pills -->
+      <div class="flex flex-wrap items-center justify-center gap-2 text-[11px] font-semibold text-zinc-300">
+        <span class="px-3 py-1 rounded-full bg-zinc-900/90 border border-zinc-800">👻 No Cap Anonymous</span>
+        <span class="px-3 py-1 rounded-full bg-zinc-900/90 border border-zinc-800">📊 Live % Splits</span>
+        <span class="px-3 py-1 rounded-full bg-zinc-900/90 border border-zinc-800">⏳ 24h Self-Destruct</span>
+      </div>
+
+      <!-- Gen Z Open Button CTA -->
+      <button onclick="acceptInvitation()" class="w-full py-4 rounded-2xl gradient-btn text-black font-extrabold text-sm tracking-wider uppercase invite-btn-glow transition transform hover:scale-[1.03] active:scale-95 flex items-center justify-center gap-2 font-genz">
+        <span>⚡ TAP IN — LET'S COOK</span>
+      </button>
+    </div>
+  </div>
+
+  <header class="sticky top-0 z-40 bg-[#06070a]/75 backdrop-blur-2xl border-b border-zinc-800/80">
+    <!-- Top Brand Bar with Custom Neon Logo & Quick Action Pills -->
+    <div class="max-w-xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
+      <button onclick="switchView('feed')" class="flex items-center gap-2.5 text-left group focus:outline-none">
+        <div class="w-10 h-10 rounded-2xl bg-[#0d0f14] border border-zinc-800 group-hover:border-cyan-500/50 flex items-center justify-center p-1 transition shadow-md">
+          <svg viewBox="0 0 120 120" class="w-full h-full">
+            <circle cx="60" cy="60" r="55" fill="#06070a" stroke="url(#ringGrad)" stroke-width="5" />
+            <path d="M 48 28 C 34 28 25 37 25 49 C 25 56 29 62 35 66 L 31 75 L 42 69 C 44 69.5 46 70 48 70 C 62 70 71 61 71 49 C 71 37 62 28 48 28 Z" fill="url(#leftBubbleGrad)" />
+            <path d="M 73 32 C 60 32 51 40 51 51 C 51 62 60 70 73 70 C 75 70 77 69.5 79 69 L 89 75 L 86 66 C 91 62 95 57 95 51 C 95 40 86 32 73 32 Z" fill="url(#rightBubbleGrad)" opacity="0.92" />
+            <text x="45" y="57" text-anchor="middle" fill="#ffffff" font-family="Syne, sans-serif" font-weight="900" font-size="26">?</text>
+            <polygon points="70,43 70,59 83,51" fill="#ffffff" />
+          </svg>
+        </div>
+        <div>
+          <div class="text-sm sm:text-base font-extrabold tracking-tight text-white font-genz leading-none">
+            MICRO <span class="gradient-text">DILEMMA</span>
+          </div>
+          <div class="text-[10px] font-mono text-zinc-400 tracking-wider uppercase mt-0.5">
+            Small Choices. Big Opinions.
+          </div>
+        </div>
+      </button>
+
+      <div class="flex items-center gap-1.5">
+        <!-- API Connection Status Pill -->
+        <button onclick="openModal('apiConfigModal')" class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-zinc-900/90 border border-zinc-800 hover:border-cyan-500/40 text-[10px] font-mono text-zinc-300 transition">
+          <span id="apiStatusDot" class="w-2 h-2 rounded-full bg-cyan-400"></span>
+          <span id="apiStatusLabel">API: Ready</span>
+        </button>
+
+        <!-- Pro Pass Button -->
+        <button onclick="openModal('subModal')" class="px-2.5 py-1.5 rounded-xl bg-pink-950/50 hover:bg-pink-950/80 border border-pink-500/40 text-pink-300 font-extrabold text-[11px] tracking-wide transition">
+          <span id="headerProText">GO PRO</span>
+        </button>
+
+        <!-- Private Account Login Button -->
+        <button onclick="openModal('authModal')" class="px-2.5 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 font-semibold text-xs flex items-center gap-1.5 transition">
+          <span id="authStatusDot" class="w-2 h-2 rounded-full bg-zinc-500"></span>
+          <span id="headerAuthText">Log In</span>
+        </button>
+
+        <!-- Hamburger Toggle -->
+        <button onclick="toggleMenu()" class="w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white flex items-center justify-center">
+          <svg id="hamburgerIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+          <svg id="closeIcon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!--Quick Navigation Sub-bar for Instant 1-Click Switching -->
+    <div class="border-t border-zinc-800/70 bg-[#080a0f]/90">
+      <div class="max-w-xl mx-auto px-4 py-2 flex flex-wrap items-center justify-center sm:justify-between gap-2">
+        <div class="flex flex-wrap items-center justify-center gap-1.5">
+          <button id="topTabFeed" onclick="setFeedSource('community')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition bg-cyan-950/60 border border-cyan-500/50 text-cyan-300 flex items-center gap-1.5">
+            <span>🔥</span> <span>Community Feed</span>
+          </button>
+          <button id="topTabOracle" onclick="setFeedSource('ai')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition bg-zinc-900/80 border border-zinc-800 text-zinc-400 hover:text-white flex items-center gap-1.5">
+            <span>🔮</span> <span>The Oracle's Matrix</span>
+          </button>
+          <button id="topTabCreate" onclick="switchView('create')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition bg-zinc-900/80 border border-zinc-800 text-zinc-400 hover:text-white flex items-center gap-1.5">
+            <span>➕</span> <span>Create Dilemma</span>
+          </button>
+          <button id="topTabAdmin" onclick="switchView('admin')" class="px-3 py-1.5 rounded-xl text-xs font-semibold transition bg-zinc-900/80 border border-zinc-800 text-zinc-400 hover:text-purple-300 flex items-center gap-1">
+            <span>🔒</span> <span class="hidden sm:inline">Owner</span>
+          </button>
+        </div>
+        <button onclick="switchView('create')" class="px-3 py-1.5 rounded-xl gradient-btn text-black font-extrabold text-[11px] uppercase tracking-wider shadow">
+          + Post
+        </button>
+      </div>
+    </div>
+
+    <!-- Slide-down Mobile/Hamburger Menu -->
+    <div id="mobileMenu" class="hidden border-t border-zinc-800/80 bg-[#0a0c10]/95 backdrop-blur-xl px-4 pt-3 pb-5 transition-all">
+      <div class="max-w-xl mx-auto space-y-2.5">
+        <button id="navFeedBtn" onclick="setFeedSource('community'); toggleMenu(false);" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm border transition bg-cyan-950/30 border-cyan-500/40 text-cyan-400">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/>
+          </svg>
+          Feed (24h Live)
+        </button>
+
+        <button id="navCreateBtn" onclick="switchView('create'); toggleMenu(false);" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm border border-transparent text-zinc-400 hover:text-white hover:bg-zinc-900/60 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Create Dilemma
+        </button>
+
+        <button onclick="openModal('subModal'); toggleMenu(false);" class="w-full flex items-center justify-between px-4 py-3 rounded-xl font-semibold text-sm border border-pink-500/30 bg-pink-950/20 text-pink-300 hover:bg-pink-950/40 transition">
+          <span class="flex items-center gap-3">
+            <span>💎</span>
+            <span>Pro Pass (₹49 / ₹99) — Remove Ads</span>
+          </span>
+          <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-pink-500/20 text-pink-300">Ad-Free</span>
+        </button>
+
+        <button id="navAdminBtn" onclick="switchView('admin'); toggleMenu(false);" class="w-full flex items-center justify-between px-4 py-3 rounded-xl font-semibold text-sm border border-transparent text-zinc-400 hover:text-white hover:bg-zinc-900/60 transition">
+          <span class="flex items-center gap-3">
+            <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+            <span>Developer / Owner Console</span>
+          </span>
+          <span class="text-[10px] font-mono text-zinc-500">Restricted</span>
+        </button>
+
+        <button onclick="switchView('create'); toggleMenu(false);" class="w-full mt-2 py-3.5 rounded-xl gradient-btn text-black font-extrabold text-sm tracking-wide uppercase flex items-center justify-center gap-2 shadow-lg">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+          POST A DILEMMA
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-xl w-full mx-auto px-4 py-6">
+
+    <!-- ================= VIEW 1: COMMUNITY FEED (SINGLE CLEAN INSTANCE) ================= -->
+    <section id="feedView" class="space-y-5">
+      
+      <!-- Title, 24h Ephemeral Notice & Anonymity Badge -->
+      <div class="flex items-start justify-between gap-2">
+        <div>
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-[11px] font-medium text-zinc-300 mb-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>👻 100% Anonymous Feed • Vanishes in 24h</span>
+          </div>
+          <h1 id="feedHeading" class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+            Community <span class="gradient-text">Feed</span>
+          </h1>
+          <p id="feedSubtext" class="text-zinc-400 text-sm mt-1">
+            Vote on the dilemmas everyone is talking about. Results reveal after you pick.
+          </p>
+        </div>
+      </div>
+
+      <!-- Pro Member Exclusive Banner (Shown when user upgrades via payment) -->
+      <div id="proMemberBanner" class="hidden bg-gradient-to-r from-cyan-950/60 via-purple-950/60 to-pink-950/60 border border-pink-500/40 rounded-2xl p-3.5 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+          <span class="text-lg">👑</span>
+          <div>
+            <div id="proBannerTitle" class="text-xs font-extrabold text-white uppercase tracking-wide">Student Pro Pass Active</div>
+            <div class="text-[11px] text-zinc-300">Ad-Free Feed • Campus Vibe Splits &amp; Personality Era Unlocked</div>
+          </div>
+        </div>
+        <span class="px-2.5 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-mono text-[10px] font-bold whitespace-nowrap">
+          ✓ PAID
+        </span>
+      </div>
+
+      <!-- 3-Column Live Stats Bar -->
+      <div class="grid grid-cols-3 gap-2.5">
+        <!-- Total Votes -->
+        <div class="bg-[#0d0f14] border border-zinc-800/90 rounded-2xl p-3 flex items-center gap-2.5">
+          <div class="text-cyan-400 flex-shrink-0">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+            </svg>
+          </div>
+          <div>
+            <div id="statTotalVotes" class="font-mono font-bold text-white text-sm sm:text-base leading-tight">0</div>
+            <div class="text-[11px] text-zinc-400">Total Votes</div>
+          </div>
+        </div>
+
+        <!-- Active 24h Dilemmas Count -->
+        <div class="bg-[#0d0f14] border border-zinc-800/90 rounded-2xl p-3 flex items-center gap-2.5">
+          <div class="text-pink-500 flex-shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <div>
+            <div id="statTotalDilemmas" class="font-mono font-bold text-white text-sm sm:text-base leading-tight">0</div>
+            <div class="text-[11px] text-zinc-400">Dilemmas</div>
+          </div>
+        </div>
+
+        <!-- Lifetime Reacted Count (Synced to Backend User Profile) -->
+        <button onclick="openModal('authModal')" class="bg-[#0d0f14] hover:border-emerald-500/40 border border-zinc-800/90 rounded-2xl p-3 flex items-center gap-2.5 text-left transition group">
+          <div class="text-emerald-400 flex-shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <div>
+            <div id="statYouVoted" class="font-mono font-bold text-white text-sm sm:text-base leading-tight">0</div>
+            <div class="text-[10px] text-zinc-400 group-hover:text-emerald-300 transition">You Voted</div>
+          </div>
+        </button>
+      </div>
+
+      <!-- 10x Feature: Live Gen Z Vibe & Streak Bar -->
+      <div class="bg-gradient-to-r from-[#0d111a] via-[#130f1e] to-[#0d111a] border border-zinc-800/90 rounded-2xl p-3.5 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div id="vibeEmojiIcon" class="w-9 h-9 rounded-xl bg-purple-950/70 border border-purple-500/40 flex items-center justify-center text-lg">
+            ⚡
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-extrabold text-white font-genz uppercase tracking-wide" id="vibePersonaTitle">Unranked Lurker</span>
+              <span id="vibeStreakPill" class="px-2 py-0.5 rounded-full bg-cyan-950/80 border border-cyan-500/40 text-[10px] font-mono font-bold text-cyan-300">0 Streak 🔥</span>
+            </div>
+            <p id="vibePersonaSub" class="text-[11px] text-zinc-400 mt-0.5">Tap an option on any dilemma to reveal live % splits &amp; unlock your vibe.</p>
+          </div>
+        </div>
+        <button onclick="pickRandomUnvotedDilemma()" class="px-3 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-xs font-bold text-cyan-300 whitespace-nowrap transition flex items-center gap-1">
+          <span>🎲</span> <span>Surprise Me</span>
+        </button>
+      </div>
+
+      <!-- Search Input -->
+      <div class="relative">
+        <svg class="w-4 h-4 text-zinc-500 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input 
+          id="searchInput"
+          type="text" 
+          oninput="handleSearch(this.value)"
+          placeholder="Search dilemmas, options, topics..." 
+          class="w-full bg-[#0d0f14] border border-zinc-800/90 focus:border-cyan-500/60 rounded-2xl pl-11 pr-4 py-3 text-sm text-white placeholder-zinc-500 focus:outline-none transition"
+        >
+      </div>
+
+      <!-- Category Filter Pills -->
+      <div id="categoryFilterBar" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+        <!-- Rendered dynamically by JS -->
+      </div>
+
+      <!-- Sort Filter Pills -->
+      <div id="sortFilterBar" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+        <!-- Rendered dynamically by JS -->
+      </div>
+
+      <!-- Dilemmas List Container -->
+      <div id="dilemmasContainer" class="space-y-4 pt-1">
+        <!-- Cards rendered dynamically -->
+      </div>
+
+    </section>
+
+    <!-- ================= VIEW 2: CREATE A DILEMMA ================= -->
+    <section id="createView" class="hidden space-y-6">
+      
+      <!-- Breadcrumb -->
+      <div class="flex items-center gap-2 text-xs text-zinc-400">
+        <button onclick="switchView('feed')" class="hover:text-white transition">Community Feed</button>
+        <span>&rsaquo;</span>
+        <span class="text-zinc-200 font-medium">Create Dilemma</span>
+      </div>
+
+      <!-- Heading -->
+      <div>
+        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+          Post a <span class="gradient-text">Dilemma</span>
+        </h1>
+        <p class="text-zinc-400 text-sm mt-1">
+          Craft a two-option moral or lifestyle question and let the community decide. The best dilemmas split people 50/50.
+        </p>
+      </div>
+
+      <!-- Form Card -->
+      <div class="bg-[#0d0f14] border border-zinc-800/90 rounded-3xl p-5 space-y-6 card-glow">
+        <h2 class="text-base font-bold text-white border-b border-zinc-800/80 pb-3">
+          Craft your dilemma
+        </h2>
+
+        <!-- Question Input -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between">
+            <label for="inputQuestion" class="text-sm font-bold text-zinc-200">
+              The Dilemma Question <span class="text-pink-500">*</span>
+            </label>
+            <span id="charQuestion" class="text-xs font-mono text-zinc-500">0/200</span>
+          </div>
+          <p class="text-xs text-zinc-400">Describe the scenario and the choice. Start with "You" for best results.</p>
+          <textarea 
+            id="inputQuestion"
+            rows="3"
+            maxlength="200"
+            oninput="updateCreatePreview()"
+            placeholder="e.g. You find out your best friend has been lying to their partner for months. Do you:"
+            class="w-full mt-1 bg-[#12151e] border border-zinc-800 focus:border-cyan-400 rounded-2xl p-3.5 text-sm text-white placeholder-zinc-500 focus:outline-none transition resize-none"
+          ></textarea>
+        </div>
+
+        <!-- The Two Options -->
+        <div class="space-y-4">
+          <div>
+            <label class="text-sm font-bold text-zinc-200">
+              The Two Options <span class="text-pink-500">*</span>
+            </label>
+            <p class="text-xs text-zinc-400 mt-0.5">Both options should be equally tempting. Avoid obvious right answers.</p>
+          </div>
+
+          <!-- Option A Input -->
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-md bg-cyan-950/80 border border-cyan-500/40 text-cyan-400 font-mono font-bold text-xs flex items-center justify-center">A</span>
+                <span class="text-sm font-semibold text-zinc-200">Option A</span>
+              </div>
+              <span id="charOptA" class="text-xs font-mono text-zinc-500">0/80</span>
+            </div>
+            <input 
+              id="inputOptA"
+              type="text"
+              maxlength="80"
+              oninput="updateCreatePreview()"
+              placeholder="e.g. Tell the partner — they deserve the truth"
+              class="w-full bg-[#12151e] border border-cyan-500/30 focus:border-cyan-400 rounded-xl px-3.5 py-3 text-sm text-white placeholder-zinc-500 focus:outline-none transition"
+            >
+          </div>
+
+          <!-- Divider VS -->
+          <div class="flex items-center gap-3 py-1">
+            <div class="h-px bg-zinc-800 flex-1"></div>
+            <span class="text-[11px] font-mono uppercase tracking-widest text-zinc-500">vs</span>
+            <div class="h-px bg-zinc-800 flex-1"></div>
+          </div>
+
+          <!-- Option B Input -->
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-md bg-pink-950/80 border border-pink-500/40 text-pink-400 font-mono font-bold text-xs flex items-center justify-center">B</span>
+                <span class="text-sm font-semibold text-zinc-200">Option B</span>
+              </div>
+              <span id="charOptB" class="text-xs font-mono text-zinc-500">0/80</span>
+            </div>
+            <input 
+              id="inputOptB"
+              type="text"
+              maxlength="80"
+              oninput="updateCreatePreview()"
+              placeholder="e.g. Stay out of it — it's not your relationship"
+              class="w-full bg-[#12151e] border border-pink-500/30 focus:border-pink-400 rounded-xl px-3.5 py-3 text-sm text-white placeholder-zinc-500 focus:outline-none transition"
+            >
+          </div>
+        </div>
+
+        <!-- Category Selection -->
+        <div class="space-y-2">
+          <label class="text-sm font-bold text-zinc-200">
+            Category <span class="text-pink-500">*</span>
+          </label>
+          <p class="text-xs text-zinc-400">Choose the category that best describes your dilemma.</p>
+          <div id="createCategoryPills" class="flex flex-wrap gap-2 pt-1">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Error Message Banner -->
+        <div id="formError" class="hidden rounded-xl bg-rose-950/50 border border-rose-500/40 px-4 py-2.5 text-xs text-rose-300">
+          Please fill in the question and both options before posting.
+        </div>
+
+        <!-- Submit & Cancel Buttons -->
+        <div class="space-y-2.5 pt-2">
+          <button onclick="submitNewDilemma()" class="w-full py-3.5 rounded-2xl gradient-btn text-black font-extrabold text-sm tracking-wide uppercase flex items-center justify-center gap-2 shadow-lg transition">
+            <svg class="w-4 h-4 -rotate-45" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+            </svg>
+            POST DILEMMA
+          </button>
+          <button onclick="switchView('feed')" class="w-full py-3 rounded-2xl bg-[#141720] hover:bg-zinc-800 border border-zinc-800 text-zinc-300 font-semibold text-sm transition">
+            Cancel
+          </button>
+          <p class="text-[11px] text-center text-zinc-500 pt-1">
+            By posting, you agree to keep dilemmas respectful and free of hate speech.
+          </p>
+        </div>
+      </div>
+
+      <!-- Live Preview Card -->
+      <div class="bg-[#0d0f14] border border-zinc-800/90 rounded-3xl p-5 space-y-3">
+        <div class="flex items-center gap-2 text-xs font-semibold text-zinc-300">
+          <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+          Live Preview
+        </div>
+        <div id="livePreviewBox" class="border border-dashed border-zinc-800 rounded-2xl p-6 text-center text-xs text-zinc-500">
+          Start filling out the form to see your dilemma preview here.
+        </div>
+      </div>
+
+      <!-- Writing Tips Card -->
+      <div class="bg-[#121110] border border-amber-500/20 rounded-3xl p-5 space-y-3">
+        <div class="flex items-center gap-2 text-amber-400 font-bold text-sm">
+          <span>💡</span> Writing tips
+        </div>
+        <ul class="space-y-2 text-xs text-zinc-300">
+          <li class="flex items-start gap-2">
+            <span class="text-amber-400 mt-0.5">&#9671;</span>
+            <span>Make both options genuinely tempting — avoid obvious right answers</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-amber-400 mt-0.5">&#9671;</span>
+            <span>Keep the question under 120 characters for best engagement</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-amber-400 mt-0.5">&#9671;</span>
+            <span>Options should be roughly equal in length and detail</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-amber-400 mt-0.5">&#9671;</span>
+            <span>The best dilemmas create an internal conflict in the reader</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-amber-400 mt-0.5">&#9671;</span>
+            <span>Avoid politically charged topics — focus on personal ethics</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Example Prompts Accordion -->
+      <div class="bg-[#0d0f14] border border-zinc-800/90 rounded-3xl p-5 space-y-4">
+        <button onclick="toggleExamples()" class="w-full flex items-center justify-between text-left focus:outline-none">
+          <div class="flex items-center gap-2 text-sm font-bold text-white">
+            <span class="text-purple-400">&#10024;</span>
+            Example prompts <span class="text-xs font-normal text-zinc-500">(5)</span>
+          </div>
+          <svg id="examplesChevron" class="w-4 h-4 text-zinc-400 transition-transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+
+        <div id="examplesList" class="space-y-3 pt-1">
+          <p class="text-xs text-zinc-400">Click any example to autofill the form.</p>
+          <div id="examplePromptsContainer" class="space-y-2.5">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ================= VIEW 3: DEVELOPER & OWNER ADMIN CONSOLE ================= -->
+    <section id="adminView" class="hidden space-y-6">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2 text-xs text-zinc-400">
+          <button onclick="switchView('feed')" class="hover:text-white transition">Community Feed</button>
+          <span>&rsaquo;</span>
+          <span class="text-purple-400 font-semibold">Developer & Owner Console</span>
+        </div>
+        <span class="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase bg-purple-950/60 border border-purple-500/40 text-purple-300">
+          Private Backend View
+        </span>
+      </div>
+
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+          Owner & Developer <span class="gradient-text">Backend Logs</span>
+        </h1>
+        <p class="text-zinc-400 text-xs sm:text-sm mt-1">
+          Public users only ever see <span class="text-zinc-200 font-mono">"Anonymous"</span> on the feed. Only you and the developer can view registered Email IDs, subscription status, and total lifetime reactions here.
+        </p>
+      </div>
+
+      <!-- Passcode Gate Card -->
+      <div id="adminLockCard" class="bg-[#0d0f14] border border-zinc-800/90 rounded-3xl p-6 space-y-4 card-glow">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-purple-950/60 border border-purple-500/40 flex items-center justify-center text-purple-400">
+            🔒
+          </div>
+          <div>
+            <h2 class="text-sm font-bold text-white">Enter Owner / Developer Passcode</h2>
+            <p class="text-xs text-zinc-400">Use the owner API key configured privately on the backend. Never put it in public frontend code.</p>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <input 
+            id="adminPinInput" 
+            type="password" 
+            placeholder="Owner API key..." 
+            class="flex-1 bg-[#12151e] border border-zinc-800 focus:border-purple-400 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none"
+          >
+          <button onclick="unlockAdminConsole()" class="px-5 py-2.5 rounded-xl gradient-btn text-black font-extrabold text-xs uppercase tracking-wider">
+            Unlock
+          </button>
+        </div>
+        <p id="adminPinError" class="hidden text-xs text-rose-400">Owner authentication failed.</p>
+      </div>
+
+      <!-- Unlocked Admin Dashboard -->
+      <div id="adminDashboardContent" class="hidden space-y-5">
+        <button onclick="generateAIDilemmas()" class="px-4 py-2 rounded-xl border border-violet-500/40 text-violet-300 text-xs font-bold">Generate 3 AI dilemmas</button>
+        <button onclick="loadPrivateDilemmaAuthors()" class="px-4 py-2 rounded-xl border border-purple-500/40 text-purple-300 text-xs font-bold">View private dilemma authors</button>
+        <section id="privateAuthorsPanel" class="hidden bg-[#0d0f14] border border-purple-500/30 rounded-2xl p-4 space-y-2">
+          <h3 class="text-sm font-bold text-white">Private author records · owner only</h3>
+          <div id="privateAuthorsList" class="space-y-2 text-xs text-zinc-300"></div>
+        </section>
+        <section class="bg-[#0d0f14] border border-zinc-800 rounded-2xl p-4 space-y-3">
+          <h3 class="text-sm font-bold text-white">Student verification requests</h3>
+          <div id="studentRequestsList" class="space-y-2 text-xs text-zinc-300">Load the owner console to view requests.</div>
+        </section>
+        <!-- Summary Metrics -->
+        <div class="grid grid-cols-3 gap-2.5">
+          <div class="bg-[#0d0f14] border border-zinc-800 rounded-2xl p-3.5">
+            <div class="text-[11px] text-zinc-400">Registered Emails</div>
+            <div id="adminStatUsers" class="font-mono text-xl font-bold text-white mt-0.5">0</div>
+          </div>
+          <div class="bg-[#0d0f14] border border-zinc-800 rounded-2xl p-3.5">
+            <div class="text-[11px] text-zinc-400">Active Pro Subscribers</div>
+            <div id="adminStatPros" class="font-mono text-xl font-bold text-pink-400 mt-0.5">0</div>
+          </div>
+          <div class="bg-[#0d0f14] border border-zinc-800 rounded-2xl p-3.5">
+            <div class="text-[11px] text-zinc-400">Auto-Purged (&gt;24h)</div>
+            <div id="adminStatPurged" class="font-mono text-xl font-bold text-cyan-400 mt-0.5">0</div>
+          </div>
+        </div>
+
+        <!-- Registered User Emails & Reaction Count Table -->
+        <div class="bg-[#0d0f14] border border-zinc-800/90 rounded-3xl p-5 space-y-4 overflow-hidden">
+          <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
+            <div>
+              <h3 class="text-sm font-bold text-white">Registered Users Directory (Confidential)</h3>
+              <p class="text-[11px] text-zinc-400">Real-time sync from backend `user_accounts` collection</p>
+            </div>
+            <span class="text-[10px] font-mono px-2.5 py-1 rounded-md bg-emerald-950/60 border border-emerald-500/30 text-emerald-300">
+              ● Live Backend
+            </span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="border-b border-zinc-800 text-zinc-400 font-mono text-[10px] uppercase">
+                  <th class="py-2.5 pr-3">Email ID (Owner Only)</th>
+                  <th class="py-2.5 px-2">Public Mask</th>
+                  <th class="py-2.5 px-2">Plan Tier</th>
+                  <th class="py-2.5 px-2 text-right">Total Reacted</th>
+                  <th class="py-2.5 pl-2 text-right">Last Login</th>
+                </tr>
+              </thead>
+              <tbody id="adminUsersTableBody" class="divide-y divide-zinc-800/60 text-zinc-200">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= MODAL 1: USER BACKEND LOGIN & ACCOUNT STATS ================= -->
+  <div id="authModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-[#0d0f14] border border-zinc-800 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-5 card-glow relative">
+      <button onclick="closeModal('authModal')" class="absolute top-4 right-4 w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white flex items-center justify-center">
+        ✕
+      </button>
+
+      <!-- Logged Out State: Email Login Form -->
+      <div id="authLoggedOutView" class="space-y-4">
+        <input id="authMode" type="hidden" value="login">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/50 border border-cyan-500/30 text-cyan-300 text-[11px] font-semibold">
+          <span>🔒</span> 100% Anonymous to Public
+        </div>
+        <div>
+          <h3 id="authHeading" class="text-xl font-extrabold text-white">Log In to Your Account</h3>
+          <p class="text-xs text-zinc-400 mt-1">
+            Track your lifetime dilemma reaction count across devices. Even though dilemmas vanish every 24 hours, your personal reaction counter stays saved forever.
+          </p>
+        </div>
+
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs font-bold text-zinc-300 block mb-1">Your Email ID <span class="text-pink-500">*</span></label>
+            <input 
+              id="loginEmailInput" 
+              type="email" 
+              placeholder="you@college.edu" 
+              class="w-full bg-[#12151e] border border-zinc-800 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none"
+            >
+          </div>
+          <div>
+            <label class="text-xs font-bold text-zinc-300 block mb-1">Password <span class="text-pink-500">*</span></label>
+            <input 
+              id="loginPasswordInput" 
+              type="password" 
+              placeholder="••••••••" 
+              onkeydown="if(event.key==='Enter') handleUserLogin()"
+              class="w-full bg-[#12151e] border border-zinc-800 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none"
+            >
+          </div>
+          <p id="loginErrorMsg" class="hidden text-xs text-rose-400">Please enter a valid email (with @) and password (min 3 chars).</p>
+        </div>
+
+        <button type="button" onclick="handleUserLogin()" class="w-full py-3.5 rounded-2xl gradient-btn text-black font-extrabold text-xs uppercase tracking-wider shadow-lg transition flex items-center justify-center gap-2">
+          <span id="authSubmitLabel">Log In Privately</span>
+          <span>&rarr;</span>
+        </button>
+        <button type="button" onclick="toggleAuthMode()" class="w-full text-xs text-cyan-300 underline">Need an account? Create one</button>
+
+        <p class="text-[11px] text-center text-zinc-500">
+          Your email is never shown publicly. All posts &amp; votes appear as <span class="text-zinc-300 font-mono">👻 Anonymous</span>.
+        </p>
+      </div>
+
+      <!-- Logged In State: Persistent User Profile & Lifetime Stats -->
+      <div id="authLoggedInView" class="hidden space-y-5">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-[11px] font-semibold">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Session Saved &amp; Synced</span>
+        </div>
+
+        <div>
+          <h3 class="text-xl font-extrabold text-white">Your Private Account</h3>
+          <p class="text-xs text-zinc-400 mt-0.5">Public identity on feed: <span class="text-zinc-200 font-mono">👻 Anonymous</span></p>
+        </div>
+
+        <div class="bg-[#12151e] border border-zinc-800 rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between border-b border-zinc-800/80 pb-2.5">
+            <span class="text-xs text-zinc-400">Registered Email</span>
+            <span id="profileEmailDisplay" class="text-xs font-mono font-bold text-cyan-300">you@college.edu</span>
+          </div>
+          <div class="flex items-center justify-between border-b border-zinc-800/80 pb-2.5">
+            <span class="text-xs text-zinc-400">Lifetime Dilemmas Reacted</span>
+            <span id="profileTotalReacted" class="text-base font-mono font-extrabold text-emerald-400">0</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-zinc-400">Subscription Plan</span>
+            <span id="profileSubTier" class="text-xs font-bold text-pink-400">Free Tier</span>
+          </div>
+        </div>
+
+        <section class="bg-[#12151e] border border-zinc-800 rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between border-b border-zinc-800/80 pb-2.5">
+            <div>
+              <h4 class="text-sm font-bold text-white">Your Voting History</h4>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Private to your account</p>
+            </div>
+            <span id="profileHistoryCount" class="text-xs font-mono text-cyan-300">0 votes</span>
+          </div>
+          <div id="profileVotingHistory" class="max-h-64 overflow-y-auto pr-1 space-y-2" aria-live="polite">
+            <p class="text-xs text-zinc-500 py-2">Loading voting history…</p>
+          </div>
+        </section>
+
+        <div class="flex gap-2.5">
+          <button type="button" onclick="closeModal('authModal'); openModal('subModal');" class="flex-1 py-3 rounded-xl bg-pink-950/50 hover:bg-pink-950/80 border border-pink-500/40 text-pink-300 font-bold text-xs uppercase tracking-wider transition">
+            ✨ Manage Pro Plan
+          </button>
+          <button type="button" onclick="handleUserLogout()" class="px-4 py-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-rose-400 font-bold text-xs uppercase transition">
+            Log Out
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 2: SUBSCRIPTION TIERS & PAYMENT CHECKOUT (₹49 / ₹99) ================= -->
+  <div id="subModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-[#0d0f14] border border-zinc-800 rounded-3xl max-w-lg w-full p-6 space-y-5 card-glow relative my-8">
+      <button onclick="closeSubscriptionModal()" aria-label="Close subscription and return home" title="Return to home" class="absolute top-4 right-4 w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white flex items-center justify-center">
+        ✕
+      </button>
+
+      <!-- STEP 1: CHOOSE PLAN -->
+      <div id="subStepPlans" class="space-y-5">
+        <div>
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-950/60 border border-pink-500/40 text-pink-300 text-[11px] font-bold mb-2">
+            <span>✨</span> MICRO DILEMMA PRO PASS
+          </div>
+          <h3 class="text-2xl font-extrabold text-white">Upgrade Your Experience</h3>
+          <p class="text-xs text-zinc-400 mt-1">
+            Free users see 1 non-intrusive sponsored card every 3 dilemmas to keep our servers sustainable. Upgrade to remove all ads and unlock live Campus Vibe Splits!
+          </p>
+        </div>
+
+        <div class="bg-[#12151e] border border-cyan-500/20 rounded-2xl p-4 space-y-2">
+          <div class="text-xs font-bold text-cyan-300">Student verification for ₹49 / 30 days</div>
+          <p class="text-[11px] text-zinc-400">Submit your name, account email, school/college, and student ID. Phone is optional. Verification is reviewed privately before checkout.</p>
+          <div id="studentEmailDisplay" class="text-xs text-cyan-200">Log in to use your account email.</div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <input id="studentName" placeholder="Full name" class="bg-[#0d0f14] border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white">
+            <input id="studentPhone" placeholder="Contact number (optional)" class="bg-[#0d0f14] border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white">
+            <input id="studentInstitution" placeholder="School / college name" class="bg-[#0d0f14] border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white">
+            <input id="studentId" placeholder="School / college ID" class="bg-[#0d0f14] border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white">
+          </div>
+          <button onclick="submitStudentVerification()" class="px-3 py-2 rounded-lg border border-cyan-500/40 text-cyan-300 text-xs font-bold">Submit verification request</button>
+          <span id="studentVerificationStatus" class="text-xs text-zinc-400"></span>
+        </div>
+
+        <!-- Pricing Cards Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <!-- Student Pro Plan (₹49) -->
+          <div class="bg-[#12151e] border-2 border-cyan-500/50 rounded-2xl p-4 flex flex-col justify-between space-y-4 relative">
+            <span class="absolute -top-2.5 right-3 px-2 py-0.5 rounded-full bg-cyan-400 text-black font-extrabold text-[9px] uppercase">
+              Most Popular
+            </span>
+            <div class="space-y-2">
+              <div class="text-xs font-bold text-cyan-400 uppercase tracking-wider">Student Pro Pass</div>
+              <div class="flex items-baseline gap-1">
+                <span class="text-3xl font-black text-white">₹49</span>
+                <span class="text-xs text-zinc-400">/ 30 days</span>
+              </div>
+              <p class="text-[11px] text-zinc-400">Verified college students &amp; campus networks.</p>
+              <ul class="space-y-1.5 text-xs text-zinc-200 pt-2">
+                <li class="flex items-center gap-2"><span class="text-cyan-400">✓</span> 100% Ad-Free Feed</li>
+                <li class="flex items-center gap-2"><span class="text-cyan-400">✓</span> Unlimited Lifetime Stats</li>
+                <li class="flex items-center gap-2"><span class="text-cyan-400">✓</span> Campus Vibe Check Splits</li>
+                <li class="flex items-center gap-2"><span class="text-cyan-400">✓</span> Exclusive Personality Badges</li>
+              </ul>
+            </div>
+            <button onclick="startPlanCheckout('student', 49)" class="w-full py-2.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-xs uppercase tracking-wider transition">
+              Proceed to Pay ₹49
+            </button>
+          </div>
+
+          <!-- Individual Pro Plan (₹99) -->
+          <div class="bg-[#12151e] border border-pink-500/40 rounded-2xl p-4 flex flex-col justify-between space-y-4">
+            <div class="space-y-2">
+              <div class="text-xs font-bold text-pink-400 uppercase tracking-wider">Individual Pro</div>
+              <div class="flex items-baseline gap-1">
+                <span class="text-3xl font-black text-white">₹99</span>
+                <span class="text-xs text-zinc-400">/ 30 days</span>
+              </div>
+              <p class="text-[11px] text-zinc-400">Full access for all general users &amp; creators.</p>
+              <ul class="space-y-1.5 text-xs text-zinc-200 pt-2">
+                <li class="flex items-center gap-2"><span class="text-pink-400">✓</span> 100% Ad-Free Experience</li>
+                <li class="flex items-center gap-2"><span class="text-pink-400">✓</span> Priority Dilemma Boosting</li>
+                <li class="flex items-center gap-2"><span class="text-pink-400">✓</span> Global Demographic Insights</li>
+                <li class="flex items-center gap-2"><span class="text-pink-400">✓</span> Custom Story Split Cards</li>
+              </ul>
+            </div>
+            <button onclick="startPlanCheckout('individual', 99)" class="w-full py-2.5 rounded-xl gradient-btn text-black font-extrabold text-xs uppercase tracking-wider transition">
+              Proceed to Pay ₹99
+            </button>
+          </div>
+        </div>
+
+        <div class="text-[11px] text-zinc-400">Currently on: <strong id="modalCurrentTierText" class="text-white">Free Tier</strong></div>
+      </div>
+
+      <!-- STEP 2: INTERACTIVE PAYMENT GATEWAY CHECKOUT -->
+      <div id="subStepPayment" class="hidden space-y-5">
+        <div class="flex items-center gap-2 text-xs text-zinc-400">
+          <button onclick="backToPlans()" class="hover:text-white flex items-center gap-1">&larr; Change Plan</button>
+          <span>•</span>
+          <span class="text-emerald-400 font-mono">🔒 256-Bit Secured UPI / Card Gateway</span>
+        </div>
+
+        <div class="bg-[#12151e] border border-zinc-800 rounded-2xl p-4 flex items-center justify-between">
+          <div>
+            <div class="text-[11px] text-zinc-400">Selected Subscription</div>
+            <div id="checkoutPlanName" class="text-base font-extrabold text-white">Student Pro (₹49/mo)</div>
+          </div>
+          <div class="text-right">
+            <div class="text-[11px] text-zinc-400">Total Payable</div>
+            <div id="checkoutPlanPrice" class="text-2xl font-black text-cyan-400 font-mono">₹49</div>
+          </div>
+        </div>
+
+        <div class="rounded-2xl border border-zinc-800 bg-[#12151e] p-4 space-y-1.5">
+          <div class="text-xs font-bold text-white">Secure checkout by Razorpay</div>
+          <p class="text-[11px] text-zinc-400">Choose from the payment methods enabled for this account in Razorpay Checkout. This is a one-time payment for 30 days of access; it does not renew automatically.</p>
+        </div>
+        <button id="confirmPayBtn" onclick="completeSubscriptionPayment()" class="w-full py-3.5 rounded-2xl gradient-btn text-black font-extrabold text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-2">
+          <span>Pay Now &amp; Unlock Pro Access</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 3: REST API BACKEND CONNECTION SETTINGS ================= -->
+  <div id="apiConfigModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-[#0d0f14] border border-zinc-800 rounded-3xl max-w-md w-full p-6 space-y-4 card-glow relative">
+      <button onclick="closeModal('apiConfigModal')" class="absolute top-4 right-4 w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white flex items-center justify-center">
+        ✕
+      </button>
+
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 text-[11px] font-mono">
+        <span>🔌</span> Full-Stack REST API Bridge
+      </div>
+
+      <div>
+        <h3 class="text-lg font-extrabold text-white">Backend API Connection</h3>
+        <p class="text-xs text-zinc-400 mt-1">
+          This page connects automatically to the <code class="text-cyan-300">backend.js</code> API at <code class="text-cyan-300">/api</code> when served from this website. The backend must be running for accounts, posts, and votes to work.
+        </p>
+      </div>
+
+      <div class="space-y-2">
+        <label class="text-xs font-bold text-zinc-300 block">REST API Base URL</label>
+        <input 
+          id="apiBaseUrlInput" 
+          type="text" 
+          value="http://localhost:5000/api" 
+          class="w-full bg-[#12151e] border border-zinc-800 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-xs font-mono text-white focus:outline-none"
+        >
+      </div>
+
+      <div class="bg-[#12151e] border border-zinc-800 rounded-2xl p-3 text-[11px] font-mono text-zinc-400 space-y-1">
+        <div><span class="text-emerald-400">GET</span>  /api/dilemmas</div>
+        <div><span class="text-cyan-400">POST</span> /api/dilemmas</div>
+        <div><span class="text-cyan-400">POST</span> /api/dilemmas/:id/vote</div>
+        <div><span class="text-pink-400">POST</span> /api/auth/login</div>
+        <div><span class="text-purple-400">GET</span>  /api/admin/users</div>
+      </div>
+
+      <button onclick="ReconnectApiBackend()" class="w-full py-3 rounded-xl gradient-btn text-black font-extrabold text-xs uppercase tracking-wider">
+        Test &amp; Connect API
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 hidden bg-zinc-900/95 border border-cyan-500/50 text-white px-4 py-2.5 rounded-2xl shadow-2xl text-xs font-semibold flex items-center gap-2 backdrop-blur-md">
+    <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+    <span id="toastMsg">Dilemma posted to Community Feed!</span>
+  </div>
+
+  <script type="module">
+
+    const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
+    const nowMs = Date.now();
+
+    // The feed is loaded from the API; no sample votes or fake users are shown.
+    const initialDilemmas = [];
+
+    // Non-intrusive native sponsored placements (shown once every 4 dilemmas ONLY to Free-Tier users)
+    const sponsoredPlacements = [
+      { sponsor: 'Advertisement', tag: 'Ad space', headline: 'Partner advertisement placement.', cta: 'Learn more', accent: 'cyan' },
+      { sponsor: 'Advertisement', tag: 'Ad space', headline: 'Partner advertisement placement.', cta: 'Learn more', accent: 'pink' },
+      { sponsor: 'Micro Dilemma', tag: 'House promotion', headline: 'Explore the ad-free subscription plans.', cta: 'View plans', accent: 'purple' }
+    ];
+
+    // Example prompts for autofill on Create page
+    const examplePrompts = [
+      {
+        question: 'You find out your closest colleague is about to get fired and they have no idea. Do you:',
+        optionA: 'Warn them privately so they can prepare',
+        optionB: "Stay out of it — it's company confidential",
+        category: 'Work'
+      },
+      {
+        question: "You receive $500 in your bank account by mistake. The bank hasn't noticed yet. Do you:",
+        optionA: 'Call the bank immediately to return it',
+        optionB: "Wait — if they don't notice in 30 days, keep it",
+        category: 'Ethics'
+      },
+      {
+        question: 'Your partner asks if you like their new haircut and you genuinely hate it. Do you:',
+        optionA: 'Be honest — you always want truth in your relationship',
+        optionB: "Say you love it — it'll grow back anyway",
+        category: 'Social'
+      },
+      {
+        question: 'You witness a stranger being verbally abused in public by someone much larger. Do you:',
+        optionA: 'Step in and intervene directly',
+        optionB: 'Call security or the police from a safe distance',
+        category: 'Ethics'
+      },
+      {
+        question: 'You could live rent-free for 5 years but only in a city you hate. Do you:',
+        optionA: 'Take it — five years of savings changes everything',
+        optionB: 'Pass — happiness and location matter more than money',
+        category: 'Lifestyle'
+      }
+    ];
+
+    // App State
+    let dilemmas = [...initialDilemmas];
+    let purgedCount = 3; // Tracks how many >24h dilemmas were auto-deleted
+    let activeCategory = 'All';
+    let activeSort = 'Trending';
+    let activeFeedSource = 'community';
+    let expiredFeedRefreshPending = false;
+    let expiredFeedRefreshInProgress = false;
+    let searchQuery = '';
+    let selectedCreateCategory = 'Ethics';
+
+    // Current User Profile (persisted in backend when logged in)
+    let currentUserAccount = {
+      isLoggedIn: false,
+      email: null,
+      totalReacted: 0,
+      planTier: 'Free Tier',
+      votedIds: {},
+      votingHistory: []
+    };
+
+    let backendAccountsDirectory = [];
+    let sessionToken = localStorage.getItem('microDilemmaToken') || '';
+    let ownerApiKey = sessionStorage.getItem('microDilemmaOwnerKey') || '';
+
+    // ============================================================================
+    // FULL-STACK REST API CLIENT BRIDGE (Connects Frontend <-> server.js API)
+    // ============================================================================
+    let API_BASE_URL = `${window.location.origin}/api`;
+    let isRestApiConnected = false;
+
+    async function apiRequest(endpoint, options = {}) {
+      const controller = new AbortController();
+      const timeoutMs = endpoint === '/dilemmas' || endpoint === '/subscription/upgrade' || endpoint === '/payments/verify' || endpoint.startsWith('/payments/orders/') ? 60000 : 1800;
+      const timeout = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            ...(sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {}),
+            ...(options.headers || {})
+          },
+          ...options,
+          signal: controller.signal
+        });
+        clearTimeout(timeout);
+        if (!response.ok) {
+          const errPayload = await response.json().catch(() => ({}));
+          throw new Error(errPayload.error || `HTTP ${response.status}`);
+        }
+        return await response.json();
+      } catch (err) {
+        clearTimeout(timeout);
+        throw err;
+      }
+    }
+
+    async function checkAndSyncRestApi() {
+      const dotEl = document.getElementById('apiStatusDot');
+      const labelEl = document.getElementById('apiStatusLabel');
+      try {
+        const health = await apiRequest('/health');
+        if (health && health.status === 'ok') {
+          isRestApiConnected = true;
+          if (dotEl) dotEl.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+          if (labelEl) labelEl.textContent = 'API: Connected';
+
+          // Fetch live dilemmas from Node/Express backend
+          const feedData = await apiRequest('/dilemmas');
+          if (feedData && Array.isArray(feedData.dilemmas)) {
+            dilemmas = feedData.dilemmas.map(d => ({
+              ...d,
+              userChoice: currentUserAccount.votedIds[d.id] || null
+            }));
+            purgedCount = feedData.purgedCount ?? purgedCount;
+            updateTopStats();
+            renderDilemmas();
+          }
+        }
+      } catch (e) {
+        // Fallback smoothly when running inside online preview without localhost:5000 running
+        isRestApiConnected = false;
+        if (dotEl) dotEl.className = 'w-2 h-2 rounded-full bg-rose-400';
+        if (labelEl) labelEl.textContent = 'API: Offline';
+      }
+    }
+
+    async function ReconnectApiBackend() {
+      const inputVal = document.getElementById('apiBaseUrlInput').value.trim().replace(/\/+$/, '');
+      if (inputVal) API_BASE_URL = inputVal;
+      await checkAndSyncRestApi();
+      closeModal('apiConfigModal');
+      if (isRestApiConnected) {
+        showToast(`Connected to REST API at ${API_BASE_URL}`);
+      } else {
+        showToast('API unavailable. Start the backend or check the API URL.');
+      }
+    }
+
+    async function initBackend() {
+      await checkAndSyncRestApi();
+      if (sessionToken) {
+        try { const data=await apiRequest('/auth/me'); currentUserAccount={...currentUserAccount,...data.user,isLoggedIn:true,votedIds:data.votedIds||{},votingHistory:data.votingHistory||[]};
+          dilemmas.forEach(d=>d.userChoice=currentUserAccount.votedIds[d.id]||null); updateAuthUI(); renderDilemmas();
+        } catch { sessionToken=''; localStorage.removeItem('microDilemmaToken'); }
+      }
+    }
+
+    // Automatically purges any dilemma older than 24 hours so nothing stays stored after 24h
+    function purgeExpiredDilemmas() {
+      const now = Date.now();
+      const beforeCount = dilemmas.length;
+      dilemmas = dilemmas.filter(d => (now - d.createdAt) < TWENTY_FOUR_HOURS_MS);
+      const removed = beforeCount - dilemmas.length;
+      if (removed > 0) {
+        purgedCount += removed;
+      }
+    }
+
+    async function refreshFeedAfterExpiry() {
+      if(!expiredFeedRefreshPending||expiredFeedRefreshInProgress||!isRestApiConnected)return;
+      expiredFeedRefreshInProgress=true;
+      try {
+        const feedData=await apiRequest('/dilemmas');
+        if(Array.isArray(feedData.dilemmas)) {
+          dilemmas=feedData.dilemmas.map(d=>({...d,userChoice:currentUserAccount.votedIds[d.id]||null}));
+          purgedCount=feedData.purgedCount??purgedCount;
+          expiredFeedRefreshPending=false;
+          updateTopStats();
+          renderDilemmas();
+        }
+      } catch {}
+      finally { expiredFeedRefreshInProgress=false; }
+    }
+
+    function formatTimeRemaining(createdAt) {
+      const elapsed = Date.now() - createdAt;
+      const remainingMs = Math.max(0, TWENTY_FOUR_HOURS_MS - elapsed);
+      const hoursLeft = Math.floor(remainingMs / (1000 * 60 * 60));
+      const minsLeft = Math.floor((remainingMs % (1000 * 60 * 60)) / (1000 * 60));
+      if (hoursLeft > 0) {
+        return `${hoursLeft}h ${minsLeft}m left`;
+      }
+      return `${minsLeft}m left`;
+    }
+
+    const categories = ['All', 'Ethics', 'Lifestyle', 'Work', 'Social', 'Hypothetical'];
+    const createCategories = ['Ethics', 'Lifestyle', 'Work', 'Social', 'Hypothetical'];
+    const sorts = [
+      { id: 'Trending', label: 'Trending', icon: '↗' },
+      { id: 'Newest', label: 'Newest', icon: '🕒' },
+      { id: 'Most Voted', label: 'Most Voted', icon: '🔥' },
+      { id: 'Most Controversial', label: 'Most Controversial', icon: '⚖️' }
+    ];
+
+    function getCategoryPillStyle(cat) {
+      const map = {
+        'Ethics': 'bg-cyan-950/60 text-cyan-400 border-cyan-500/40',
+        'Hypothetical': 'bg-emerald-950/60 text-emerald-400 border-emerald-500/40',
+        'Social': 'bg-fuchsia-950/60 text-fuchsia-400 border-fuchsia-500/40',
+        'Work': 'bg-amber-950/60 text-amber-400 border-amber-500/40',
+        'Lifestyle': 'bg-indigo-950/60 text-indigo-400 border-indigo-500/40'
+      };
+      return map[cat] || 'bg-zinc-800 text-zinc-300 border-zinc-700';
+    }
+
+    function escapeHtml(value){return String(value??'').replace(/[&<>\"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[ch]));}
+    function getBadgeHTML(badge) {
+      if (badge === 'Trending') {
+        return `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-pink-950/60 text-pink-400 border border-pink-500/30">
+          <span>↗</span> Trending
+        </span>`;
+      }
+      if (badge === 'Hot') {
+        return `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-orange-950/60 text-orange-400 border border-orange-500/30">
+          <span>🔥</span> Hot
+        </span>`;
+      }
+      if (badge === 'Split') {
+        return `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-yellow-950/60 text-yellow-400 border border-yellow-500/30">
+          <span>⚡</span> Split
+        </span>`;
+      }
+      return '';
+    }
+
+    function getControversyInfo(votesA, votesB) {
+      const total = votesA + votesB;
+      if (total === 0) return { label: 'Perfectly Split', color: 'text-pink-400', barColor: 'from-cyan-400 to-pink-500', width: '95%' };
+      const diffRatio = Math.abs(votesA - votesB) / total;
+      if (diffRatio <= 0.06) {
+        return { label: 'Perfectly Split', color: 'text-pink-500', barColor: 'from-cyan-400 to-pink-500', width: '95%' };
+      } else if (diffRatio <= 0.15) {
+        return { label: 'Very Divided', color: 'text-purple-400', barColor: 'from-indigo-400 to-purple-500', width: '78%' };
+      } else if (diffRatio <= 0.30) {
+        return { label: 'Divided', color: 'text-indigo-400', barColor: 'from-blue-400 to-indigo-500', width: '60%' };
+      } else {
+        return { label: 'Leaning', color: 'text-cyan-400', barColor: 'from-cyan-500 to-blue-500', width: '40%' };
+      }
+    }
+
+    function formatTotalVotesK(num) {
+      if (num >= 1000) {
+        return (num / 1000).toFixed(1) + 'k';
+      }
+      return num.toString();
+    }
+
+    function updateTopStats() {
+      purgeExpiredDilemmas();
+      const totalVotes = dilemmas.reduce((acc, d) => acc + d.votesA + d.votesB, 0);
+      const sessionVoted = dilemmas.filter(d => d.userChoice !== null).length;
+      const displayedReacted = Math.max(currentUserAccount.totalReacted, sessionVoted);
+
+      document.getElementById('statTotalVotes').textContent = formatTotalVotesK(totalVotes);
+      document.getElementById('statTotalDilemmas').textContent = dilemmas.length;
+      document.getElementById('statYouVoted').textContent = displayedReacted;
+
+      const profileReactedEl = document.getElementById('profileTotalReacted');
+      if (profileReactedEl) profileReactedEl.textContent = displayedReacted;
+    }
+
+    function renderFilterBars() {
+      const catBar = document.getElementById('categoryFilterBar');
+      catBar.innerHTML = categories.map(cat => {
+        const isActive = cat === activeCategory;
+        const activeClasses = isActive 
+          ? 'bg-cyan-950/60 border-cyan-400 text-cyan-300 shadow-[0_0_12px_rgba(0,242,254,0.2)]' 
+          : 'bg-[#0d0f14] border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700';
+        return `<button onclick="setCategory('${cat}')" class="px-4 py-2 rounded-full border text-xs font-semibold whitespace-nowrap transition ${activeClasses}">
+          ${cat}
+        </button>`;
+      }).join('');
+
+      const sortBar = document.getElementById('sortFilterBar');
+      sortBar.innerHTML = sorts.map(s => {
+        const isActive = s.id === activeSort;
+        const activeClasses = isActive
+          ? 'bg-[#171b26] border-zinc-600 text-white'
+          : 'bg-[#0d0f14] border-zinc-800/80 text-zinc-400 hover:text-zinc-200';
+        return `<button onclick="setSort('${s.id}')" class="px-3.5 py-1.5 rounded-xl border text-xs font-medium whitespace-nowrap flex items-center gap-1.5 transition ${activeClasses}">
+          <span>${s.icon}</span>
+          <span>${s.label}</span>
+        </button>`;
+      }).join('');
+    }
+
+    function setCategory(cat) {
+      activeCategory = cat;
+      renderFilterBars();
+      renderDilemmas();
+    }
+
+    function setSort(sortId) {
+      activeSort = sortId;
+      renderFilterBars();
+      renderDilemmas();
+    }
+
+    function handleSearch(val) {
+      searchQuery = val.trim().toLowerCase();
+      renderDilemmas();
+    }
+
+    function getFilteredAndSortedDilemmas() {
+      purgeExpiredDilemmas();
+      let list = dilemmas.filter(d => {
+        const matchesSource = activeFeedSource === 'community' ? d.source === 'community' : activeFeedSource === 'ai' ? (d.source === 'ai' || d.source === 'curated') : false;
+        const matchesCat = activeCategory === 'All' || d.category === activeCategory;
+        const matchesSearch = !searchQuery || 
+          d.question.toLowerCase().includes(searchQuery) ||
+          d.optionA.toLowerCase().includes(searchQuery) ||
+          d.optionB.toLowerCase().includes(searchQuery) ||
+          d.category.toLowerCase().includes(searchQuery);
+        return matchesSource && matchesCat && matchesSearch;
+      });
+
+      if (activeSort === 'Newest') {
+        list.sort((a, b) => b.createdAt - a.createdAt);
+      } else if (activeSort === 'Most Voted') {
+        list.sort((a, b) => (b.votesA + b.votesB) - (a.votesA + a.votesB));
+      } else if (activeSort === 'Most Controversial') {
+        list.sort((a, b) => {
+          const ratioA = Math.abs(a.votesA - a.votesB) / (a.votesA + a.votesB || 1);
+          const ratioB = Math.abs(b.votesA - b.votesB) / (b.votesA + b.votesB || 1);
+          return ratioA - ratioB;
+        });
+      } else {
+        list.sort((a, b) => ((b.badges||[]).includes('Trending') ? 1 : 0) - ((a.badges||[]).includes('Trending') ? 1 : 0));
+      }
+
+      return list;
+    }
+
+    function renderNativeAdCard(adIndex) {
+      const ad = sponsoredPlacements[adIndex % sponsoredPlacements.length];
+      return `
+        <aside class="bg-gradient-to-r from-[#10131c] via-[#151221] to-[#10131c] border border-zinc-800/90 rounded-3xl p-4 sm:p-5 space-y-3 relative overflow-hidden">
+          <div class="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-zinc-400">
+            <span class="px-2 py-0.5 rounded bg-zinc-800/90 text-amber-300 border border-amber-500/30">${ad.tag}</span>
+            <button onclick="openModal('subModal')" class="text-pink-400 hover:underline font-sans font-semibold">
+              Remove Ads (₹49) ✕
+            </button>
+          </div>
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div class="text-xs font-bold text-zinc-400">${ad.sponsor}</div>
+              <div class="text-sm font-bold text-white mt-0.5">${ad.headline}</div>
+            </div>
+            <button onclick="openModal('subModal')" class="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-cyan-500/40 text-cyan-300 text-xs font-bold whitespace-nowrap transition self-start sm:self-center">
+              ${ad.cta} &rarr;
+            </button>
+          </div>
+        </aside>
+      `;
+    }
+
+    function renderDilemmas() {
+      const container = document.getElementById('dilemmasContainer');
+      const list = getFilteredAndSortedDilemmas();
+
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div class="bg-[#0d0f14] border border-zinc-800/90 rounded-3xl p-10 text-center space-y-2">
+            <div class="text-2xl">🔍</div>
+            <div class="text-white font-bold text-base">No active dilemmas match your filter</div>
+            <p class="text-xs text-zinc-500">Try clearing your search or post a fresh 24-hour dilemma!</p>
+          </div>
+        `;
+        return;
+      }
+
+      const isFreeTier = currentUserAccount.planTier === 'Free Tier';
+      let htmlBlocks = [];
+      let adCounter = 0;
+
+      list.forEach((d, idx) => {
+        const total = d.votesA + d.votesB;
+        const pctA = total > 0 ? Math.round((d.votesA / total) * 100) : 50;
+        const pctB = 100 - pctA;
+        const controversy = getControversyInfo(d.votesA, d.votesB);
+        const hasVoted = d.userChoice !== null;
+        const timeLeftLabel = formatTimeRemaining(d.createdAt);
+
+        let optionsMarkup = '';
+        if (!hasVoted) {
+          optionsMarkup = `
+            <div class="space-y-2.5 pt-1">
+              <button
+                onclick="castVote('${d.id}', 'A', this)"
+                onmouseenter="playOptionHoverSound('A')"
+                class="w-full text-left rounded-2xl p-4 option-a-box option-card-interactive group block focus:outline-none"
+              >
+                <div class="flex items-center justify-between mb-1">
+                  <span class="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest text-cyan-400">
+                    <span class="w-4 h-4 rounded bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-[10px] font-bold">A</span>
+                    OPTION A
+                  </span>
+                  <span class="text-[10px] font-mono text-zinc-400 group-hover:text-cyan-300 transition flex items-center gap-1">
+                    Tap to reveal % <span>&rarr;</span>
+                  </span>
+                </div>
+                <div class="text-sm sm:text-[15px] font-semibold text-white group-hover:translate-x-1 transition-transform leading-snug">${escapeHtml(d.optionA)}</div>
+              </button>
+
+              <div class="flex items-center gap-3 py-0.5">
+                <div class="h-px bg-zinc-800/80 flex-1"></div>
+                <span class="text-[10px] font-mono uppercase tracking-widest text-zinc-500 px-2 py-0.5 rounded-full border border-zinc-800 bg-[#0a0c12]">VS</span>
+                <div class="h-px bg-zinc-800/80 flex-1"></div>
+              </div>
+
+              <button
+                onclick="castVote('${d.id}', 'B', this)"
+                onmouseenter="playOptionHoverSound('B')"
+                class="w-full text-left rounded-2xl p-4 option-b-box option-card-interactive group block focus:outline-none"
+              >
+                <div class="flex items-center justify-between mb-1">
+                  <span class="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest text-pink-400">
+                    <span class="w-4 h-4 rounded bg-pink-500/20 border border-pink-400/50 flex items-center justify-center text-[10px] font-bold">B</span>
+                    OPTION B
+                  </span>
+                  <span class="text-[10px] font-mono text-zinc-400 group-hover:text-pink-300 transition flex items-center gap-1">
+                    Tap to reveal % <span>&rarr;</span>
+                  </span>
+                </div>
+                <div class="text-sm sm:text-[15px] font-semibold text-white group-hover:translate-x-1 transition-transform leading-snug">${escapeHtml(d.optionB)}</div>
+              </button>
+            </div>
+          `;
+        } else {
+          const pickedA = d.userChoice === 'A';
+          const pickedB = d.userChoice === 'B';
+          const isMajority = (pickedA && pctA >= pctB) || (pickedB && pctB >= pctA);
+          optionsMarkup = `
+            <div class="space-y-4 pt-1">
+              <!-- Live Split Summary Pill -->
+              <div class="flex items-center justify-between px-3.5 py-2 rounded-xl bg-[#121621] border border-zinc-800 text-xs">
+                <span class="font-semibold ${isMajority ? 'text-emerald-400' : 'text-purple-400'}">
+                  ${isMajority ? '🔥 You matched with the majority (' + (pickedA ? pctA : pctB) + '% voted this!)' : '⚡ Plot twist! Only ' + (pickedA ? pctA : pctB) + '% picked your side'}
+                </span>
+                <span class="font-mono text-[11px] text-zinc-400">${pctA}% / ${pctB}% Split</span>
+              </div>
+
+              <!-- Result Row A -->
+              <div class="space-y-1.5 p-3 rounded-2xl border ${pickedA ? 'bg-cyan-950/20 border-cyan-500/50' : 'bg-[#10131b] border-zinc-800/70'}">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="flex items-start gap-2 text-sm font-semibold text-white">
+                    <span class="w-5 h-5 rounded bg-cyan-500/20 border border-cyan-400/40 text-xs font-mono text-cyan-300 flex items-center justify-center flex-shrink-0 mt-0.5">A</span>
+                    <span>${escapeHtml(d.optionA)}</span>
+                  </div>
+                  <div class="flex items-center gap-2 flex-shrink-0">
+                    ${pickedA ? `<span class="px-2 py-0.5 rounded-md bg-cyan-500/20 border border-cyan-400 text-[10px] font-mono font-bold text-cyan-200 uppercase">YOUR PICK</span>` : ''}
+                    <span class="font-mono font-black text-xl text-cyan-400">${pctA}%</span>
+                  </div>
+                </div>
+                <div class="w-full h-8 bg-[#141822] rounded-xl overflow-hidden relative flex items-center">
+                  <div class="h-full bg-gradient-to-r from-cyan-400 to-teal-300 rounded-xl animate-bar" style="width: ${pctA}%"></div>
+                  <span class="absolute left-3 text-xs font-mono font-bold text-white drop-shadow">${d.votesA.toLocaleString()} votes (${pctA}% chose Option A)</span>
+                </div>
+              </div>
+
+              <!-- Result Row B -->
+              <div class="space-y-1.5 p-3 rounded-2xl border ${pickedB ? 'bg-pink-950/20 border-pink-500/50' : 'bg-[#10131b] border-zinc-800/70'}">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="flex items-start gap-2 text-sm font-semibold text-white">
+                    <span class="w-5 h-5 rounded bg-pink-500/20 border border-pink-400/40 text-xs font-mono text-pink-300 flex items-center justify-center flex-shrink-0 mt-0.5">B</span>
+                    <span>${escapeHtml(d.optionB)}</span>
+                  </div>
+                  <div class="flex items-center gap-2 flex-shrink-0">
+                    ${pickedB ? `<span class="px-2 py-0.5 rounded-md bg-pink-500/20 border border-pink-400 text-[10px] font-mono font-bold text-pink-200 uppercase">YOUR PICK</span>` : ''}
+                    <span class="font-mono font-black text-xl text-pink-500">${pctB}%</span>
+                  </div>
+                </div>
+                <div class="w-full h-8 bg-[#141822] rounded-xl overflow-hidden relative flex items-center">
+                  <div class="h-full bg-gradient-to-r from-pink-500 to-fuchsia-500 rounded-xl animate-bar" style="width: ${pctB}%"></div>
+                  <span class="absolute left-3 text-xs font-mono font-bold text-white drop-shadow">${d.votesB.toLocaleString()} votes (${pctB}% chose Option B)</span>
+                </div>
+              </div>
+
+              ${currentUserAccount.planTier !== 'Free Tier' ? `
+                <div class="mt-2 pt-2.5 border-t border-zinc-800/80 flex items-center justify-between text-[11px] text-cyan-300 bg-cyan-950/20 rounded-xl px-3 py-2 border border-cyan-500/20">
+                  <span>👑 <strong>Pro Campus Insight:</strong> ${pctA >= pctB ? 'Option A leads among 18–24 college voters' : 'Option B dominates late-night campus polls'}</span>
+                  <span class="font-mono text-[10px] text-pink-400 uppercase">Verified Split</span>
+                </div>
+              ` : ''}
+            </div>
+          `;
+        }
+
+        // Strict Anonymity: Public cards NEVER show user IDs or emails—always "Anonymous"
+        htmlBlocks.push(`
+          <article class="bg-[#0d0f14] border border-zinc-800/90 rounded-3xl p-5 space-y-4 card-glow transition">
+            <!-- Top Meta Row -->
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="px-3 py-0.5 rounded-full border text-xs font-semibold ${getCategoryPillStyle(d.category)}">
+                  ${escapeHtml(d.category)}
+                </span>
+                ${d.source === 'ai' ? '<span class="px-2 py-0.5 rounded-full border border-violet-500/40 bg-violet-950/50 text-[10px] text-violet-300">AI GENERATED</span>' : d.source === 'curated' ? '<span class="px-2 py-0.5 rounded-full border border-emerald-500/40 bg-emerald-950/50 text-[10px] text-emerald-300">CURATED STARTER</span>' : (d.badges || []).map(getBadgeHTML).join('')}
+              </div>
+              <div class="flex items-center gap-3 text-xs text-zinc-400 font-medium">
+                <span class="flex items-center gap-1 text-amber-400/90 font-mono text-[11px]" title="Auto-deletes after 24 hours">
+                  ⏳ ${timeLeftLabel}
+                </span>
+                <span class="flex items-center gap-1 text-zinc-500" title="User identity is hidden from public">
+                  👻 Anonymous
+                </span>
+              </div>
+            </div>
+
+            <!-- Question Title -->
+            <h2 class="text-base sm:text-lg font-bold text-white leading-snug">
+              ${escapeHtml(d.question)}
+            </h2>
+
+            <!-- Interactive Options or Revealed Bars -->
+            ${optionsMarkup}
+
+            <!-- Card Footer -->
+            <div class="pt-3 border-t border-zinc-800/70 flex items-center justify-between text-xs text-zinc-400">
+              <div class="font-mono">${total.toLocaleString()} total votes</div>
+              <div class="flex items-center gap-2">
+                <span class="text-zinc-500 text-[11px]">controversy</span>
+                <div class="w-16 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                  <div class="h-full bg-gradient-to-r ${controversy.barColor} rounded-full" style="width: ${controversy.width}"></div>
+                </div>
+                <span class="font-bold text-[11px] ${controversy.color}">${controversy.label}</span>
+              </div>
+            </div>
+          </article>
+        `);
+
+        // Balanced Ad Frequency: Insert 1 native ad after every 3rd card for Free Tier users
+        if (isFreeTier && (idx + 1) % 3 === 0) {
+          htmlBlocks.push(renderNativeAdCard(adCounter++));
+        }
+      });
+
+      container.innerHTML = htmlBlocks.join('');
+    }
+
+    // ============================================================================
+    // SOFT & CHARMING WEB AUDIO SYNTHESIZER (Cloud Whoosh + Option Hover + Vote Chimes)
+    // ============================================================================
+    let audioCtx = null;
+    function getAudioContext() {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return null;
+      if (!audioCtx) audioCtx = new AudioContextClass();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }
+
+    // Airy Cloud Parting Whoosh + Ethereal Shimmer Chime for Intro
+    function playCloudWhooshSound() {
+      try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+
+        // 1. Soft Pink-Noise Filtered Cloud Breeze
+        const duration = 1.25;
+        const bufferSize = ctx.sampleRate * duration;
+        const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          output[i] = (Math.random() * 2 - 1) * 0.5;
+        }
+
+        const whiteNoise = ctx.createBufferSource();
+        whiteNoise.buffer = noiseBuffer;
+
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.Q.setValueAtTime(1.8, now);
+        filter.frequency.setValueAtTime(220, now);
+        filter.frequency.exponentialRampToValueAtTime(1400, now + 0.55);
+        filter.frequency.exponentialRampToValueAtTime(380, now + duration);
+
+        const noiseGain = ctx.createGain();
+        noiseGain.gain.setValueAtTime(0.001, now);
+        noiseGain.gain.linearRampToValueAtTime(0.16, now + 0.35);
+        noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+        whiteNoise.connect(filter);
+        filter.connect(noiseGain);
+        noiseGain.connect(ctx.destination);
+        whiteNoise.start(now);
+        whiteNoise.stop(now + duration);
+
+        // 2. Dreamy Ascending Harp/Celesta Chord
+        const chord = [523.25, 659.25, 783.99, 987.77, 1174.66]; // Cmaj9 dreamy chord
+        chord.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+          gain.gain.setValueAtTime(0.001, now + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.07, now + idx * 0.08 + 0.03);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.08 + 0.75);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + idx * 0.08);
+          osc.stop(now + idx * 0.08 + 0.8);
+        });
+      } catch (e) {}
+    }
+
+    // Subtle soft tick when hovering over Option A or Option B
+    function playOptionHoverSound(option) {
+      try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(option === 'A' ? 660 : 587.33, now);
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.exponentialRampToValueAtTime(0.025, now + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.07);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.08);
+      } catch (e) {}
+    }
+
+    // Matching Option Select Sound (Sparkling Cyan Pop vs Warm Pink Pluck)
+    function playCharmingSound(type = 'voteA') {
+      try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+
+        const notes = type === 'voteA'
+          ? [587.33, 880.00, 1174.66] // D5 -> A5 -> D6 bright cyan sparkle
+          : [523.25, 783.99, 1046.50]; // C5 -> G5 -> C6 warm pink chime
+
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.055);
+
+          gain.gain.setValueAtTime(0.001, now + idx * 0.055);
+          gain.gain.exponentialRampToValueAtTime(0.12, now + idx * 0.055 + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.055 + 0.42);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+
+          osc.start(now + idx * 0.055);
+          osc.stop(now + idx * 0.055 + 0.45);
+        });
+      } catch (e) {}
+    }
+
+    function acceptInvitation() {
+      playCloudWhooshSound();
+      const overlay = document.getElementById('introInvitationOverlay');
+      const clouds = document.querySelectorAll('#introCloudsContainer .cloud-layer');
+      const card = document.getElementById('introInviteCard');
+
+      // Animate all cloud layers upwards and fade them out
+      clouds.forEach(cloud => cloud.classList.add('clouds-rise-up'));
+      if (card) {
+        card.style.transform = 'translateY(-60px) scale(0.95)';
+        card.style.opacity = '0';
+      }
+
+      if (overlay) {
+        setTimeout(() => {
+          overlay.classList.add('intro-exit');
+        }, 250);
+        setTimeout(() => {
+          overlay.classList.add('hidden');
+        }, 1150);
+      }
+    }
+
+    function updateVibeMeter() {
+      const votedCount = dilemmas.filter(d => d.userChoice !== null).length;
+      const totalReacted = Math.max(currentUserAccount.totalReacted, votedCount);
+      const titleEl = document.getElementById('vibePersonaTitle');
+      const streakEl = document.getElementById('vibeStreakPill');
+      const subEl = document.getElementById('vibePersonaSub');
+      const iconEl = document.getElementById('vibeEmojiIcon');
+      if (!titleEl) return;
+
+      streakEl.textContent = `${totalReacted} Streak 🔥`;
+
+      if (totalReacted === 0) {
+        iconEl.textContent = '👀';
+        titleEl.textContent = 'Lowkey Lurker';
+        subEl.textContent = 'Tap an option on any dilemma to reveal live % splits & unlock your vibe.';
+      } else if (totalReacted < 3) {
+        iconEl.textContent = '✨';
+        titleEl.textContent = 'Vibe Checker';
+        subEl.textContent = `You've unlocked ${totalReacted} live % split${totalReacted > 1 ? 's' : ''}. Keep cooking!`;
+      } else if (totalReacted < 6) {
+        iconEl.textContent = '🔥';
+        titleEl.textContent = 'Main Character Energy';
+        subEl.textContent = 'Zero hesitation! You are flying through today’s toughest dilemmas.';
+      } else {
+        iconEl.textContent = '👑';
+        titleEl.textContent = 'Certified Chaos CEO';
+        subEl.textContent = 'Top 1% campus decision maker. Nothing phases you anymore!';
+      }
+    }
+
+    function pickRandomUnvotedDilemma() {
+      const unvoted = dilemmas.filter(d => d.userChoice === null);
+      if (unvoted.length === 0) {
+        showToast('You voted on every dilemma! Post a new one to keep going.');
+        return;
+      }
+      const pick = unvoted[Math.floor(Math.random() * unvoted.length)];
+      activeCategory = 'All';
+      searchQuery = '';
+      document.getElementById('searchInput').value = '';
+      renderFilterBars();
+      renderDilemmas();
+      showToast(`🎲 Jumped to a random ${pick.category} dilemma!`);
+    }
+
+    // Dynamic blurry background color shift on scroll up/down
+    function initScrollAuraShift() {
+      const palettes = [
+        ['#00f2fe', '#a855f7', '#ff0878'], // Cyber Cyan / Purple / Neon Pink
+        ['#38bdf8', '#ec4899', '#6366f1'], // Sky / Hot Pink / Indigo
+        ['#2dd4bf', '#c084fc', '#f43f5e'], // Mint Teal / Lavender / Rose
+        ['#818cf8', '#f472b6', '#22d3ee'], // Periwinkle / Flamingo / Aqua
+        ['#f59e0b', '#ec4899', '#8b5cf6']  // Sunset Gold / Magenta / Violet
+      ];
+
+      window.addEventListener('scroll', () => {
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+        const scrollFraction = Math.min(1, Math.max(0, scrollTop / maxScroll));
+
+        const paletteIndex = Math.min(
+          palettes.length - 1,
+          Math.floor(scrollFraction * palettes.length)
+        );
+        const [c1, c2, c3] = palettes[paletteIndex];
+
+        const b1 = document.getElementById('auraBlob1');
+        const b2 = document.getElementById('auraBlob2');
+        const b3 = document.getElementById('auraBlob3');
+
+        if (b1 && b2 && b3) {
+          b1.style.background = c1;
+          b2.style.background = c2;
+          b3.style.background = c3;
+
+          // Subtle floating parallax movement as you scroll up and down
+          b1.style.transform = `translate3d(${Math.sin(scrollTop * 0.004) * 40}px, ${Math.cos(scrollTop * 0.003) * 30}px, 0)`;
+          b2.style.transform = `translate3d(${Math.cos(scrollTop * 0.004) * -45}px, ${Math.sin(scrollTop * 0.003) * 35}px, 0)`;
+          b3.style.transform = `translate3d(${Math.sin(scrollTop * 0.003) * 35}px, ${Math.cos(scrollTop * 0.004) * -30}px, 0)`;
+        }
+      }, { passive: true });
+    }
+
+    async function castVote(dilemmaId, choice, btnEl) {
+      const item=dilemmas.find(d=>d.id===dilemmaId); if(!item||item.userChoice!==null)return;
+      if(!sessionToken){openModal('authModal');showToast('Log in to vote and keep your reaction count.');return;}
+      if(btnEl){btnEl.classList.add('animate-option-select');await new Promise(r=>setTimeout(r,310));}
+      try { const result=await apiRequest(`/dilemmas/${dilemmaId}/vote`,{method:'POST',body:JSON.stringify({choice})});
+        Object.assign(item,result.dilemma,{userChoice:choice}); currentUserAccount.totalReacted++;currentUserAccount.votedIds[dilemmaId]=choice;
+        currentUserAccount.votingHistory=[{...result.dilemma,choice,votedAt:Date.now()},...(currentUserAccount.votingHistory||[]).filter(v=>v.id!==dilemmaId)];
+        updateTopStats();updateVibeMeter();updateAuthUI();renderDilemmas();
+      } catch(e){showToast(e.message||'Could not record vote.');}
+    }
+
+    function openModal(id) {
+      document.getElementById(id).classList.remove('hidden');
+      if(id==='authModal'&&currentUserAccount.isLoggedIn) refreshAccountHistory();
+    }
+
+    async function refreshAccountHistory() {
+      const list=document.getElementById('profileVotingHistory');
+      list.innerHTML='<p class="text-xs text-zinc-500 py-2">Loading voting history…</p>';
+      try {
+        const data=await apiRequest('/auth/me');
+        currentUserAccount={...currentUserAccount,...data.user,isLoggedIn:true,votedIds:data.votedIds||{},votingHistory:data.votingHistory||[]};
+        updateAuthUI();
+      } catch(e) {
+        list.textContent='Could not load voting history. Please try again.';
+      }
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    function closeSubscriptionModal() {
+      closeModal('subModal');
+      document.getElementById('subStepPayment').classList.add('hidden');
+      document.getElementById('subStepPlans').classList.remove('hidden');
+      switchView('feed');
+    }
+
+    async function handleUserLogin() {
+      const email=document.getElementById('loginEmailInput').value.trim().toLowerCase();
+      const password=document.getElementById('loginPasswordInput').value;
+      const err=document.getElementById('loginErrorMsg'); err.classList.add('hidden');
+      if(!email||password.length<10){err.textContent='Enter a valid email and password (minimum 10 characters).';err.classList.remove('hidden');return;}
+      try {
+        const mode=document.getElementById('authMode').value;
+        const data=await apiRequest(`/auth/${mode}`,{method:'POST',body:JSON.stringify({email,password})});
+        sessionToken=data.token;localStorage.setItem('microDilemmaToken',sessionToken);
+        currentUserAccount={...currentUserAccount,...data.user,isLoggedIn:true};
+        dilemmas.forEach(d=>d.userChoice=currentUserAccount.votedIds?.[d.id]||null);
+        updateAuthUI();updateTopStats();renderDilemmas();closeModal('authModal');showToast('Signed in. Your public activity remains anonymous.');
+      } catch(e){err.textContent=e.message;err.classList.remove('hidden');}
+    }
+
+    function toggleAuthMode(){
+      const mode=document.getElementById('authMode'); mode.value=mode.value==='login'?'register':'login';
+      document.getElementById('authHeading').textContent=mode.value==='login'?'Log In to Your Account':'Create Your Account';
+      document.getElementById('authSubmitLabel').textContent=mode.value==='login'?'Log In Privately':'Create Account';
+    }
+    async function submitStudentVerification(){
+      const status=document.getElementById('studentVerificationStatus');
+      if(!sessionToken){showToast('Log in before requesting student verification.');return;}
+      try{
+        const result=await apiRequest('/student-verification',{method:'POST',body:JSON.stringify({fullName:document.getElementById('studentName').value.trim(),phone:document.getElementById('studentPhone').value.trim(),institution:document.getElementById('studentInstitution').value.trim(),studentId:document.getElementById('studentId').value.trim()})});
+        status.textContent=result.message; status.className='text-xs text-emerald-300';
+      }catch(e){status.textContent=e.message;status.className='text-xs text-rose-300';}
+    }
+
+    function handleUserLogout() {
+      currentUserAccount.isLoggedIn = false;
+      currentUserAccount.email = null; sessionToken=''; localStorage.removeItem('microDilemmaToken');
+      updateAuthUI();
+      closeModal('authModal');
+      showToast('Logged out of your private session.');
+    }
+
+    function updateAuthUI() {
+      const loggedOutView = document.getElementById('authLoggedOutView');
+      const loggedInView = document.getElementById('authLoggedInView');
+      const authStatusDot = document.getElementById('authStatusDot');
+      const headerAuthText = document.getElementById('headerAuthText');
+
+      if (currentUserAccount.isLoggedIn) {
+        loggedOutView.classList.add('hidden');
+        loggedInView.classList.remove('hidden');
+        document.getElementById('profileEmailDisplay').textContent = currentUserAccount.email;
+        const studentEmail=document.getElementById('studentEmailDisplay'); if(studentEmail)studentEmail.textContent=`Verification email: ${currentUserAccount.email}`;
+        document.getElementById('profileTotalReacted').textContent = currentUserAccount.totalReacted;
+        document.getElementById('profileSubTier').textContent = currentUserAccount.planTier;
+        authStatusDot.className = 'w-2 h-2 rounded-full bg-emerald-400';
+        headerAuthText.textContent = `Reacted: ${currentUserAccount.totalReacted}`;
+        renderVotingHistory();
+      } else {
+        loggedOutView.classList.remove('hidden');
+        loggedInView.classList.add('hidden');
+        authStatusDot.className = 'w-2 h-2 rounded-full bg-zinc-500';
+        headerAuthText.textContent = 'Log In';
+      }
+
+      // Update Pro Header Badge
+      const headerProText = document.getElementById('headerProText');
+      const modalCurrentTierText = document.getElementById('modalCurrentTierText');
+      const proMemberBanner = document.getElementById('proMemberBanner');
+      const proBannerTitle = document.getElementById('proBannerTitle');
+
+      if (currentUserAccount.planTier === 'Free Tier') {
+        headerProText.textContent = 'GO PRO';
+        modalCurrentTierText.textContent = 'Free Tier (With Balanced Ads)';
+        if (proMemberBanner) proMemberBanner.classList.add('hidden');
+      } else {
+        headerProText.textContent = '👑 PRO ACTIVE';
+        modalCurrentTierText.textContent = currentUserAccount.planTier + ' (Ad-Free)';
+        if (proMemberBanner) {
+          proMemberBanner.classList.remove('hidden');
+          proBannerTitle.textContent = currentUserAccount.planTier + ' Active';
+        }
+      }
+    }
+
+    function renderVotingHistory() {
+      const list=document.getElementById('profileVotingHistory');
+      const count=document.getElementById('profileHistoryCount');
+      if(!list||!count)return;
+      const history=currentUserAccount.votingHistory||[];
+      count.textContent=`${history.length} ${history.length===1?'vote':'votes'}`;
+      if(!history.length){list.innerHTML='<p class="text-xs text-zinc-500 py-2">You have not voted on any available dilemmas yet.</p>';return;}
+      list.replaceChildren(...history.map(vote=>{
+        const card=document.createElement('article');
+        card.className='rounded-xl border border-zinc-800 bg-[#0d0f14] p-3 space-y-2';
+        const heading=document.createElement('div');
+        heading.className='flex items-start justify-between gap-3';
+        const category=document.createElement('span');
+        category.className='text-[10px] uppercase tracking-wide text-cyan-300';
+        category.textContent=vote.category||'Dilemma';
+        const timestamp=document.createElement('time');
+        timestamp.className='text-[10px] text-zinc-500 shrink-0';
+        timestamp.textContent=vote.votedAt?new Date(vote.votedAt).toLocaleString():'';
+        heading.append(category,timestamp);
+        const question=document.createElement('p');
+        question.className='text-xs leading-relaxed text-zinc-100';
+        question.textContent=vote.question;
+        const choice=document.createElement('p');
+        choice.className='text-[11px] text-emerald-300';
+        choice.textContent=`Your choice: ${vote.choice==='A'?'A':'B'} — ${vote.choice==='A'?vote.optionA:vote.optionB}`;
+        card.append(heading,question,choice);
+        return card;
+      }));
+    }
+
+    let pendingCheckoutPlan = 'student';
+    function startPlanCheckout(plan, price) {
+      if (!sessionToken) { closeModal('subModal'); openModal('authModal'); showToast('Log in to subscribe.'); return; }
+      pendingCheckoutPlan = plan;
+      document.getElementById('checkoutPlanName').textContent = `${plan==='student'?'Student Pro':'Individual Pro'} · 30 days`;
+      document.getElementById('checkoutPlanPrice').textContent = '₹' + price;
+      if (plan === 'student') {
+        apiRequest('/student-verification').then(({verification}) => {
+          if (verification?.status === 'approved') { pendingCheckoutPlan='student'; completeSubscriptionPayment(); }
+          else if (!verification) submitStudentVerification();
+          else showToast(`Student verification status: ${verification.status}.`);
+        }).catch(e=>showToast(e.message));
+        return;
+      }
+      document.getElementById('subStepPlans').classList.add('hidden');
+      document.getElementById('subStepPayment').classList.remove('hidden');
+    }
+
+    function backToPlans() {
+      document.getElementById('subStepPayment').classList.add('hidden');
+      document.getElementById('subStepPlans').classList.remove('hidden');
+    }
+
+    async function completeSubscriptionPayment() {
+      const btn = document.getElementById('confirmPayBtn');
+      const resetButton=()=>{btn.innerHTML='<span>Pay Now &amp; Unlock Pro Access</span>';btn.disabled=false;};
+      btn.textContent = 'Starting secure checkout...';
+      btn.disabled = true;
+      try {
+        const order = await apiRequest('/subscription/upgrade', {method:'POST', body:JSON.stringify({plan:pendingCheckoutPlan})});
+        if (!window.Razorpay) throw new Error('Payment checkout is unavailable.');
+        const checkout = new Razorpay({key:order.keyId, amount:order.amount, currency:order.currency, name:'Micro Dilemma', description:'30-day Pro access · one-time payment', order_id:order.orderId,
+          prefill:{email:currentUserAccount.email||''},
+          handler:async(paymentResponse)=>{
+            closeModal('subModal');
+            showToast('Verifying your payment…');
+            try {
+              const verification=await apiRequest('/payments/verify',{method:'POST',body:JSON.stringify(paymentResponse)});
+              let paymentStatus=verification.status;
+              for(let attempt=0;paymentStatus!=='paid'&&attempt<10;attempt++) {
+                await new Promise(resolve=>setTimeout(resolve,1200));
+                const status=await apiRequest(`/payments/orders/${encodeURIComponent(order.orderId)}`);
+                paymentStatus=status.status;
+              }
+              if(paymentStatus==='paid') {
+                const me=await apiRequest('/auth/me');
+                currentUserAccount={...currentUserAccount,...me.user,isLoggedIn:true,votedIds:me.votedIds||{},votingHistory:me.votingHistory||[]};
+                updateAuthUI();updateTopStats();
+                showToast('Payment confirmed. Your 30-day Pro access is active.');
+              } else {
+                showToast('Payment is awaiting capture confirmation. Pro access will activate when Razorpay confirms it.');
+              }
+            } catch(error) {
+              showToast(error.message||'Payment confirmation is pending. Please check your account shortly.');
+            } finally { resetButton(); }
+          },
+          modal:{ondismiss:resetButton},
+          theme:{color:'#22d3ee'}});
+        checkout.on('payment.failed',()=>showToast('Payment did not complete. You can retry securely through Razorpay Checkout.'));
+        checkout.open();
+      } catch(e) { showToast(e.message||'Could not start payment. Please try again.'); resetButton(); }
+    }
+
+    async function unlockAdminConsole() {
+      const pin = document.getElementById('adminPinInput').value.trim();
+      const err = document.getElementById('adminPinError');
+      ownerApiKey = pin; sessionStorage.setItem('microDilemmaOwnerKey',pin);
+      try {
+        err.classList.add('hidden');
+        const adminData = await apiRequest('/admin/users',{headers:{'x-api-key':pin}});
+        if (Array.isArray(adminData.users)) backendAccountsDirectory=adminData.users;
+        const verificationData=await apiRequest('/admin/student-verifications',{headers:{'x-api-key':pin}});
+        renderStudentRequests(verificationData.requests||[]);
+        document.getElementById('adminLockCard').classList.add('hidden');
+        document.getElementById('adminDashboardContent').classList.remove('hidden');
+
+        renderAdminTable();
+        showToast('Owner & Developer Console unlocked.');
+      } catch {
+        ownerApiKey='';sessionStorage.removeItem('microDilemmaOwnerKey');
+        err.classList.remove('hidden');
+      }
+    }
+
+    async function generateAIDilemmas(){
+      try{const data=await apiRequest('/ai/dilemmas',{method:'POST',headers:{'x-api-key':ownerApiKey},body:JSON.stringify({count:3})});
+        dilemmas.unshift(...data.dilemmas.map(d=>({...d,userChoice:null})));updateTopStats();renderDilemmas();showToast('AI-generated dilemmas added and labeled in the feed.');
+      }catch(e){showToast(e.message||'Could not generate dilemmas.');}
+    }
+    async function loadPrivateDilemmaAuthors(){
+      try{const data=await apiRequest('/admin/dilemmas',{headers:{'x-api-key':ownerApiKey}});const panel=document.getElementById('privateAuthorsPanel'),list=document.getElementById('privateAuthorsList');
+        list.innerHTML=data.dilemmas.map(d=>`<div class="border-b border-zinc-800 pb-2"><strong>${escapeHtml(d.creatorEmail||'AI generated')}</strong> · ${escapeHtml(d.source)} · ${escapeHtml(d.question)}</div>`).join('')||'No dilemma records.';panel.classList.remove('hidden');
+      }catch(e){showToast(e.message||'Could not load private author records.');}
+    }
+
+    function renderStudentRequests(requests){
+      const root=document.getElementById('studentRequestsList');
+      if(!requests.length){root.textContent='No student verification requests.';return;}
+      root.innerHTML=requests.map(r=>`<div class="border border-zinc-800 rounded-xl p-3 flex flex-wrap items-center justify-between gap-2"><div><strong>${escapeHtml(r.fullName)}</strong> · ${escapeHtml(r.email)}<div class="text-zinc-400">${escapeHtml(r.institution)} · Student ID: ${escapeHtml(r.studentId)} · ${escapeHtml(r.phone||'No phone')} · ${escapeHtml(r.status)}</div></div>${r.status==='pending'?`<div class="flex gap-2"><button onclick="reviewStudent('${r.id}','approved')" class="text-emerald-300 underline">Approve</button><button onclick="reviewStudent('${r.id}','rejected')" class="text-rose-300 underline">Reject</button></div>`:''}</div>`).join('');
+    }
+    async function reviewStudent(id,status){
+      try{await apiRequest(`/admin/student-verifications/${encodeURIComponent(id)}/review`,{method:'POST',headers:{'x-api-key':ownerApiKey},body:JSON.stringify({status})});
+        const data=await apiRequest('/admin/student-verifications',{headers:{'x-api-key':ownerApiKey}});renderStudentRequests(data.requests||[]);showToast(`Student verification ${status}.`);
+      }catch(e){showToast(e.message||'Could not update student request.');}
+    }
+
+    function renderAdminTable() {
+      const tbody = document.getElementById('adminUsersTableBody');
+      if (!tbody) return;
+
+      document.getElementById('adminStatUsers').textContent = backendAccountsDirectory.length;
+      document.getElementById('adminStatPros').textContent = backendAccountsDirectory.filter(u => u.planTier !== 'Free Tier').length;
+      document.getElementById('adminStatPurged').textContent = purgedCount;
+
+      tbody.innerHTML = backendAccountsDirectory.map(u => {
+        const isPro = u.planTier !== 'Free Tier';
+        const badgeCls = isPro
+          ? 'bg-pink-950/60 border-pink-500/40 text-pink-300'
+          : 'bg-zinc-800 border-zinc-700 text-zinc-400';
+        return `
+          <tr class="hover:bg-zinc-900/40 transition">
+            <td class="py-3 pr-3 font-mono font-semibold text-cyan-300">${escapeHtml(u.email)}</td>
+            <td class="py-3 px-2 text-zinc-400 font-mono">👻 ${escapeHtml(u.publicMask || 'Anonymous')}</td>
+            <td class="py-3 px-2">
+              <span class="px-2 py-0.5 rounded-full border text-[10px] font-semibold ${badgeCls}">
+                ${escapeHtml(u.planTier)}
+              </span>
+            </td>
+            <td class="py-3 px-2 text-right font-mono font-bold text-emerald-400">${u.totalReacted}</td>
+            <td class="py-3 pl-2 text-right text-zinc-500">${u.lastLogin}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function toggleMenu(forceState) {
+      const menu = document.getElementById('mobileMenu');
+      const ham = document.getElementById('hamburgerIcon');
+      const close = document.getElementById('closeIcon');
+      const isHidden = menu.classList.contains('hidden');
+      const shouldShow = typeof forceState === 'boolean' ? forceState : isHidden;
+
+      if (shouldShow) {
+        menu.classList.remove('hidden');
+        ham.classList.add('hidden');
+        close.classList.remove('hidden');
+      } else {
+        menu.classList.add('hidden');
+        ham.classList.remove('hidden');
+        close.classList.add('hidden');
+      }
+    }
+
+    function switchView(view) {
+      const feedView = document.getElementById('feedView');
+      const createView = document.getElementById('createView');
+      const adminView = document.getElementById('adminView');
+
+      feedView.classList.add('hidden');
+      createView.classList.add('hidden');
+      adminView.classList.add('hidden');
+
+      const topTabFeed = document.getElementById('topTabFeed');
+      const topTabOracle = document.getElementById('topTabOracle');
+      const topTabCreate = document.getElementById('topTabCreate');
+      const topTabAdmin = document.getElementById('topTabAdmin');
+
+      const activeTabCls = 'px-3.5 py-1.5 rounded-xl text-xs font-bold transition bg-cyan-950/60 border border-cyan-500/50 text-cyan-300 flex items-center gap-1.5';
+      const inactiveTabCls = 'px-3.5 py-1.5 rounded-xl text-xs font-bold transition bg-zinc-900/80 border border-zinc-800 text-zinc-400 hover:text-white flex items-center gap-1.5';
+
+      if (topTabFeed) topTabFeed.className = inactiveTabCls;
+      if (topTabOracle) topTabOracle.className = inactiveTabCls;
+      if (topTabCreate) topTabCreate.className = inactiveTabCls;
+      if (topTabAdmin) topTabAdmin.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold transition bg-zinc-900/80 border border-zinc-800 text-zinc-400 hover:text-purple-300 flex items-center gap-1';
+
+      if (view === 'create') {
+        createView.classList.remove('hidden');
+        if (topTabCreate) topTabCreate.className = activeTabCls;
+      } else if (view === 'admin') {
+        adminView.classList.remove('hidden');
+        if (topTabAdmin) topTabAdmin.className = 'px-3 py-1.5 rounded-xl text-xs font-bold transition bg-purple-950/60 border border-purple-500/50 text-purple-300 flex items-center gap-1';
+        renderAdminTable();
+      } else {
+        feedView.classList.remove('hidden');
+        updateFeedSourceUI();
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function setFeedSource(source) {
+      activeFeedSource = source === 'ai' ? 'ai' : 'community';
+      activeCategory = 'All';
+      searchQuery = '';
+      document.getElementById('searchInput').value = '';
+      renderFilterBars();
+      switchView('feed');
+      updateFeedSourceUI();
+      renderDilemmas();
+    }
+
+    function updateFeedSourceUI() {
+      const heading = document.getElementById('feedHeading');
+      const subtext = document.getElementById('feedSubtext');
+      const topTabFeed = document.getElementById('topTabFeed');
+      const topTabOracle = document.getElementById('topTabOracle');
+      const active = 'px-3.5 py-1.5 rounded-xl text-xs font-bold transition bg-cyan-950/60 border border-cyan-500/50 text-cyan-300 flex items-center gap-1.5';
+      const inactive = 'px-3.5 py-1.5 rounded-xl text-xs font-bold transition bg-zinc-900/80 border border-zinc-800 text-zinc-400 hover:text-white flex items-center gap-1.5';
+      const isAI = activeFeedSource === 'ai';
+      if (heading) heading.textContent = isAI ? "The Oracle's Matrix" : 'Community Feed';
+      if (subtext) subtext.textContent = isAI
+         ? 'AI-generated dilemmas and curated starters. Humans decide the outcome.'
+        : 'Vote on the dilemmas everyone is talking about. Results reveal after you pick.';
+      if (topTabFeed) topTabFeed.className = isAI ? inactive : active;
+      if (topTabOracle) topTabOracle.className = isAI ? active : inactive;
+    }
+
+    function renderCreateCategories() {
+      const container = document.getElementById('createCategoryPills');
+      container.innerHTML = createCategories.map(cat => {
+        const isSelected = cat === selectedCreateCategory;
+        const cls = isSelected
+          ? 'bg-cyan-950/80 border-cyan-400 text-cyan-300 shadow-[0_0_12px_rgba(0,242,254,0.2)]'
+          : 'bg-[#12151e] border-zinc-800 text-zinc-400 hover:text-zinc-200';
+        return `<button type="button" onclick="selectCreateCategory('${cat}')" class="px-4 py-2 rounded-full border text-xs font-semibold transition ${cls}">
+          ${cat}
+        </button>`;
+      }).join('');
+    }
+
+    function selectCreateCategory(cat) {
+      selectedCreateCategory = cat;
+      renderCreateCategories();
+      updateCreatePreview();
+    }
+
+    function updateCreatePreview() {
+      const q = document.getElementById('inputQuestion').value;
+      const a = document.getElementById('inputOptA').value;
+      const b = document.getElementById('inputOptB').value;
+
+      document.getElementById('charQuestion').textContent = `${q.length}/200`;
+      document.getElementById('charOptA').textContent = `${a.length}/80`;
+      document.getElementById('charOptB').textContent = `${b.length}/80`;
+
+      document.getElementById('formError').classList.add('hidden');
+
+      const previewBox = document.getElementById('livePreviewBox');
+      if (!q.trim() && !a.trim() && !b.trim()) {
+        previewBox.className = 'border border-dashed border-zinc-800 rounded-2xl p-6 text-center text-xs text-zinc-500';
+        previewBox.innerHTML = 'Start filling out the form to see your dilemma preview here.';
+        return;
+      }
+
+      previewBox.className = 'bg-[#11141d] border border-zinc-800 rounded-2xl p-4 text-left space-y-3';
+      previewBox.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="px-2.5 py-0.5 rounded-full border text-[11px] font-semibold ${getCategoryPillStyle(selectedCreateCategory)}">
+            ${selectedCreateCategory}
+          </span>
+          <span class="text-[11px] text-zinc-400 font-mono">⏳ 24h0m left • 👻 Anonymous</span>
+        </div>
+        <div class="text-sm font-bold text-white leading-snug">
+          ${q.trim() || 'Your dilemma question will appear here...'}
+        </div>
+        <div class="space-y-2">
+          <div class="rounded-xl p-3 option-a-box">
+            <div class="text-[9px] font-mono uppercase text-zinc-400">OPTION A</div>
+            <div class="text-xs font-semibold text-white mt-0.5">${a.trim() || 'Option A...'}</div>
+          </div>
+          <div class="rounded-xl p-3 option-b-box">
+            <div class="text-[9px] font-mono uppercase text-zinc-400">OPTION B</div>
+            <div class="text-xs font-semibold text-white mt-0.5">${b.trim() || 'Option B...'}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderExamplePrompts() {
+      const container = document.getElementById('examplePromptsContainer');
+      container.innerHTML = examplePrompts.map((ex, idx) => `
+        <button type="button" onclick="autofillExample(${idx})" class="w-full text-left bg-[#12151e] hover:bg-[#171b26] border border-zinc-800/90 hover:border-zinc-700 rounded-2xl p-3.5 space-y-2.5 transition block">
+          <div class="text-xs font-bold text-zinc-200 leading-snug">${ex.question}</div>
+          <div class="grid grid-cols-2 gap-2">
+            <div class="bg-cyan-950/30 border border-cyan-500/30 rounded-lg px-2.5 py-1.5 text-[11px] text-cyan-300 truncate">
+              <span class="font-mono font-bold">A:</span> ${ex.optionA}
+            </div>
+            <div class="bg-pink-950/30 border border-pink-500/30 rounded-lg px-2.5 py-1.5 text-[11px] text-pink-300 truncate">
+              <span class="font-mono font-bold">B:</span> ${ex.optionB}
+            </div>
+          </div>
+        </button>
+      `).join('');
+    }
+
+    function autofillExample(index) {
+      const ex = examplePrompts[index];
+      if (!ex) return;
+      document.getElementById('inputQuestion').value = ex.question;
+      document.getElementById('inputOptA').value = ex.optionA;
+      document.getElementById('inputOptB').value = ex.optionB;
+      selectedCreateCategory = ex.category;
+      renderCreateCategories();
+      updateCreatePreview();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleExamples() {
+      const list = document.getElementById('examplesList');
+      const chev = document.getElementById('examplesChevron');
+      list.classList.toggle('hidden');
+      chev.classList.toggle('rotate-180');
+    }
+
+    async function submitNewDilemma() {
+      const q=document.getElementById('inputQuestion').value.trim(),a=document.getElementById('inputOptA').value.trim(),b=document.getElementById('inputOptB').value.trim();
+      if(!q||!a||!b){document.getElementById('formError').classList.remove('hidden');return;}
+      if(!sessionToken){openModal('authModal');showToast('Log in before posting a dilemma.');return;}
+      try { const data=await apiRequest('/dilemmas',{method:'POST',body:JSON.stringify({category:selectedCreateCategory,question:q,optionA:a,optionB:b})});
+        dilemmas.unshift({...data.dilemma,userChoice:null});
+        document.getElementById('inputQuestion').value='';document.getElementById('inputOptA').value='';document.getElementById('inputOptB').value='';updateCreatePreview();
+        activeCategory='All';activeSort='Newest';renderFilterBars();updateTopStats();renderDilemmas();switchView('feed');showToast('Posted anonymously. Expires in 24 hours.');
+      } catch(e){showToast(e.message||'Could not post dilemma.');}
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 3200);
+    }
+
+    // Expose handlers to global scope for inline HTML onclick attributes
+    window.switchView = switchView;
+    window.setFeedSource = setFeedSource;
+    window.toggleMenu = toggleMenu;
+    window.openModal = openModal;
+    window.closeModal = closeModal;
+    window.closeSubscriptionModal = closeSubscriptionModal;
+    window.handleUserLogin = handleUserLogin;
+    window.toggleAuthMode = toggleAuthMode;
+    window.submitStudentVerification = submitStudentVerification;
+    window.generateAIDilemmas = generateAIDilemmas;
+    window.loadPrivateDilemmaAuthors = loadPrivateDilemmaAuthors;
+    window.reviewStudent = reviewStudent;
+    window.handleUserLogout = handleUserLogout;
+    window.startPlanCheckout = startPlanCheckout;
+    window.backToPlans = backToPlans;
+    window.completeSubscriptionPayment = completeSubscriptionPayment;
+    window.unlockAdminConsole = unlockAdminConsole;
+    window.ReconnectApiBackend = ReconnectApiBackend;
+    window.setCategory = setCategory;
+    window.setSort = setSort;
+    window.handleSearch = handleSearch;
+    window.castVote = castVote;
+    window.selectCreateCategory = selectCreateCategory;
+    window.updateCreatePreview = updateCreatePreview;
+    window.autofillExample = autofillExample;
+    window.toggleExamples = toggleExamples;
+    window.submitNewDilemma = submitNewDilemma;
+    window.acceptInvitation = acceptInvitation;
+    window.playOptionHoverSound = playOptionHoverSound;
+    window.pickRandomUnvotedDilemma = pickRandomUnvotedDilemma;
+
+    window.onload = function () {
+      initBackend();
+      initScrollAuraShift();
+      renderFilterBars();
+      renderCreateCategories();
+      renderExamplePrompts();
+      updateAuthUI();
+      updateTopStats();
+      updateVibeMeter();
+      renderDilemmas();
+      // Refresh the backend feed when 24-hour dilemmas expire so replacements appear without a page reload.
+      setInterval(() => {
+        if(dilemmas.some(d=>(Date.now()-d.createdAt)>=TWENTY_FOUR_HOURS_MS)) {
+          expiredFeedRefreshPending=true;
+          renderDilemmas();
+        }
+        purgeExpiredDilemmas();
+        updateTopStats();
+        refreshFeedAfterExpiry();
+      }, 30000);
+    };
+  </script>
+</body>
+</html>
